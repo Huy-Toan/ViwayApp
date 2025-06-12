@@ -1,0 +1,80 @@
+package com.example.test.adapter;
+
+import android.view.View;
+import android.widget.TextView;
+import android.view.ViewGroup;
+import android.view.LayoutInflater;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+
+import com.example.test.response.TicketHistoryResponse;
+import com.example.test.response.TicketResponse;
+import com.example.test.R;
+import java.util.List;
+
+public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTripHolder> {
+
+    private List<TicketResponse> ticketResponseList;
+
+    public TicketAdapter(List<TicketResponse> ticketResponseList){
+        this.ticketResponseList = ticketResponseList;
+    }
+
+    public static class TicketTripHolder extends RecyclerView.ViewHolder{
+        public TextView gioDi;
+        public TextView gioDen;
+        public TextView giaVe;
+        public TextView loaiGhe;
+        public TextView soLuongGhe;
+        public TextView ticket_Diemdi;
+        public TextView khoangCach;
+        public TextView ticket_Diemden;
+
+
+        public TicketTripHolder(View itemView){
+            super(itemView);
+
+            gioDi = itemView.findViewById(R.id.gioDi);
+            gioDen = itemView.findViewById(R.id.gioDen);
+            giaVe = itemView.findViewById(R.id.giaVe);
+            loaiGhe = itemView.findViewById(R.id.loaiGhe);
+            soLuongGhe = itemView.findViewById(R.id.soLuongGhe);
+            ticket_Diemdi = itemView.findViewById(R.id.ticket_diemDi);
+            khoangCach = itemView.findViewById(R.id.khoangCach);
+            ticket_Diemden = itemView.findViewById(R.id.ticket_diemDen);
+        }
+    }
+
+    @NonNull
+    @Override
+    public TicketAdapter.TicketTripHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_ticket, parent, false);
+        return new TicketTripHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder (@NonNull TicketAdapter.TicketTripHolder holder, int position){
+        TicketResponse currenTicket = ticketResponseList.get(position);
+
+        holder.gioDi.setText(currenTicket.getGioDi());
+        holder.gioDen.setText(currenTicket.getGioDen());
+        holder.giaVe.setText(currenTicket.getGiaVe());
+        holder.loaiGhe.setText(currenTicket.getLoaiGhe());
+        holder.soLuongGhe.setText("Còn " +currenTicket.getSoLuongGhe() + " chỗ");
+        holder.ticket_Diemdi.setText(currenTicket.getDiemDi());
+        holder.khoangCach.setText("Khoảng cách " +currenTicket.getKhoangCach());
+        holder.ticket_Diemden.setText(currenTicket.getDiemDen());
+
+    }
+    @Override
+    public int getItemCount() {
+        return ticketResponseList.size();
+    }
+
+    public void updateList(List<TicketResponse> newList) {
+        this.ticketResponseList = newList;
+        notifyDataSetChanged();
+    }
+
+}
