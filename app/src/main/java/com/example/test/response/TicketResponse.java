@@ -15,7 +15,6 @@ public class TicketResponse {
     private String soLuongGhe;
     @SerializedName("DiemDi")
     private String diemDi;
-
     @SerializedName("KhoangCach")
     private String khoangCach;
     @SerializedName("DiemDen")

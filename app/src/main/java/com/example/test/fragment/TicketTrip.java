@@ -38,6 +38,7 @@ import com.example.test.item.DateItem;
 import com.example.test.response.TicketResponse;
 
 import java.net.URLEncoder;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,10 +135,6 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         ticketRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         List<TicketResponse> ticketList = new ArrayList<>();
-        //ticketList.add(new TicketResponse("08:00", "10:00", "100.000đ", "Ghế", "30", "Sài Gòn", "200km", "Vũng Tàu"));
-        //ticketList.add(new TicketResponse("09:30", "12:00", "150.000đ", "Giường", "40", "Sài Gòn", "320km", "Đà Lạt"));
-        //ticketList.add(new TicketResponse("14:00", "18:00", "250.000đ", "Limousine", "10", "Sài Gòn", "500km", "Nha Trang"));
-
         ticketAdapter = new TicketAdapter(ticketList);
         orginalTicketList = ticketList;
         filterTicketList = new ArrayList<>(ticketList);
@@ -243,11 +240,8 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         String ngayDiFormatted = sdf.format(calendarNgayDi.getTime());
 
-
-
-
-        // Build URL https://76967db7-3591-4685-b661-285163c8d90c.mock.pstmn.io, thay đường dẫn này thành link đến server
-        String baseUrl = "https://76967db7-3591-4685-b661-285163c8d90c.mock.pstmn.io/ticket";
+        // Thay đường dẫn này thành link đến server
+        String baseUrl = "https://684c3de1ed2578be881e322c.mockapi.io/getTicket";
         String url = baseUrl + "?" +
                 "DiemDi=" + diemDi +
                 "&DiemDen=" + diemDen +
@@ -296,6 +290,7 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
                     Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
                 }
         );
+
 
         queue.add(request);
     }
@@ -407,6 +402,14 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         ticketAdapter.updateList(filterTicketList);
     }
 
+
+    private String normalizeString(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        normalized = normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", ""); // Xóa dấu
+        normalized = normalized.replaceAll("\\s+", "");
+        normalized = normalized.replaceAll("Đ", "d");
+        return normalized.toLowerCase();
+    }
 
 
 }

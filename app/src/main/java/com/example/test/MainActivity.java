@@ -1,7 +1,9 @@
 package com.example.test;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager2;
     private Handler sliderHandler = new Handler();
+    private TextView name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +37,18 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
+
+        name = findViewById(R.id.account_name);
+
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String NamePre = prefs.getString("username", null);
+
+        name.setText(NamePre);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
