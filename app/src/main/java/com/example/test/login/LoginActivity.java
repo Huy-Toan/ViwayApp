@@ -3,10 +3,14 @@ package com.example.test.login;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,23 +18,28 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.test.MainActivity;
 import com.example.test.R;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.Request;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText editTextNameLogin, editTextPassLogin;
-    private String userName, password;
+
     private Button btnLogin;
+    private TextView forgotPass,tvRegister;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -46,63 +55,96 @@ public class LoginActivity extends AppCompatActivity {
 
         editTextNameLogin = findViewById(R.id.editText_UsernameLogin);
         editTextPassLogin = findViewById(R.id.editText_PassWordLogin);
+        forgotPass = findViewById(R.id.forgot_password);
+        tvRegister = findViewById(R.id.textView_Register);
         btnLogin = findViewById(R.id.btn_Login);
 
         btnLogin.setOnClickListener(v -> {
-            userName = editTextNameLogin.getText().toString().trim();
-            password = editTextPassLogin.getText().toString().trim();
+            String userName = editTextNameLogin.getText().toString().trim();
+            String password = editTextPassLogin.getText().toString().trim();
 
             if (userName.isEmpty() || password.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // URL chỉ chứa endpoint, không có query
-            String url = "https://684c3de1ed2578be881e322c.mockapi.io/loginUser";
+            loginUser(userName, password);
 
-            // Tạo body JSON
-            JSONObject loginData = new JSONObject();
-            try {
-                loginData.put("username", userName);
-                loginData.put("password", password);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        });
 
-            // Gửi POST request
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, loginData,
-                    response -> {
-                        try {
-                            String username = response.getString("username");
-                            String userId = response.getString("id");
-                            String token = response.has("token") ? response.getString("token") : "";
 
-                            // Lưu thông tin đăng nhập
-                            SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("username", username);
-                            editor.putString("userId", userId);
-                            editor.putString("token", token);
-                            editor.putBoolean("isLoggedIn", true);
-                            editor.apply();
-
-                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(LoginActivity.this, "Lỗi xử lý dữ liệu người dùng", Toast.LENGTH_SHORT).show();
-                        }
-                    },
-                    error -> {
-                        error.printStackTrace();
-                        Toast.makeText(LoginActivity.this, "Sai thông tin đăng nhập hoặc lỗi server", Toast.LENGTH_SHORT).show();
-                    });
-
-            RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
-            queue.add(request);
+        tvRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
+
+    private void loginUser (String Email, String Password) {
+        String url = "https://684c3de1ed2578be881e322c.mockapi.io/loginUser?email=" +
+                Uri.encode(Email) + "&password=" + Uri.encode(Password);
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    Log.d("LoginResponse", responseData);
+
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseData);
+                        if(jsonArray.length() == 0) {
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Sai thông tin đăng nhập", Toast.LENGTH_SHORT).show());
+                            return;
+                        }
+
+                        JSONObject user = jsonArray.getJSONObject(0);
+                        String name = user.optString("name", "name");
+                        String userId = user.optString("userId","userId");
+                        String token = user.optString("token", "token");
+
+                        SharedPreferences sharedPreferences = getSharedPreferences("VIWAY", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("name", name);
+                        editor.putString("userId", userId);
+                        editor.putString("token", token);
+                        editor.putBoolean("isLoggedIn", true);
+                        editor.apply();
+
+                        runOnUiThread(() -> {
+                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        });
+
+                    } catch (JSONException e) {
+                        runOnUiThread(() ->
+                                Toast.makeText(LoginActivity.this, "Lỗi xử lý dữ liệu", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+
+                } else {
+                    runOnUiThread(() ->
+                            Toast.makeText(LoginActivity.this, "Sai thông tin đăng nhập hoặc lỗi server", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            }
+        });
+
+    }
+
 }
