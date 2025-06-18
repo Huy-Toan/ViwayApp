@@ -16,9 +16,11 @@ import java.util.List;
 public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTripHolder> {
 
     private List<TicketResponse> ticketResponseList;
+    private OnTicketClickListener listener;
 
-    public TicketAdapter(List<TicketResponse> ticketResponseList){
+    public TicketAdapter(List<TicketResponse> ticketResponseList,  OnTicketClickListener listener){
         this.ticketResponseList = ticketResponseList;
+        this.listener = listener;
     }
 
     public static class TicketTripHolder extends RecyclerView.ViewHolder{
@@ -66,6 +68,12 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
         holder.khoangCach.setText("Khoảng cách " +currenTicket.getKhoangCach());
         holder.ticket_Diemden.setText(currenTicket.getDiemDen());
 
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTicketClick(currenTicket);
+            }
+        });
+
     }
     @Override
     public int getItemCount() {
@@ -76,5 +84,10 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
         this.ticketResponseList = newList;
         notifyDataSetChanged();
     }
+
+    public interface OnTicketClickListener {
+        void onTicketClick(TicketResponse ticket);
+    }
+
 
 }

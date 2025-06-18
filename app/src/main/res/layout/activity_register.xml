@@ -6,7 +6,7 @@
     android:background="@drawable/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".login.RegisterActivity">
+    tools:context=".login_logout.RegisterActivity">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

@@ -8,19 +8,14 @@ import androidx.core.view.WindowInsetsCompat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
 
-import com.example.test.fragment.TicketTrip;
+import com.example.test.fragment.TicketTripFragment;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class TicketTripActivity extends AppCompatActivity {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +46,9 @@ public class TicketTripActivity extends AppCompatActivity {
                     bundle.putLong("KEY_NGAY_VE_MILLIS", ngayVeMillis);
                 }
 
-                Log.d("TicketTripActivity", "Activity nhận dữ liệu:");
-                Log.d("TicketTripActivity", "Điểm đi: " + diemDi);
-                Log.d("TicketTripActivity", "Điểm đến: " + diemDen);
-                Log.d("TicketTripActivity", "Ngày đi: " + new SimpleDateFormat("dd/MM/yyyy", Locale.US).format(new Date(ngayDiMillis)));
             }
 
-            TicketTrip ticketTripFragment = new TicketTrip();
+            TicketTripFragment ticketTripFragment = new TicketTripFragment();
             ticketTripFragment.setArguments(bundle);
 
             getSupportFragmentManager().beginTransaction()

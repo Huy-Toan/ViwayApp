@@ -3,8 +3,6 @@ package com.example.test.fragment;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,21 +23,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.test.CustomSpinner;
 import com.example.test.MainActivity;
 import com.example.test.R;
-import com.example.test.TicketTripActivity;
+import com.example.test.SelectedSeatActivity;
 import com.example.test.adapter.DateAdapter;
 import com.example.test.adapter.TicketAdapter;
 import com.example.test.item.DateItem;
 import com.example.test.response.TicketResponse;
 
-import java.net.URLEncoder;
-import java.text.Normalizer;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,29 +40,28 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListener{
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.Request;
+
+public class TicketTripFragment extends Fragment implements DateAdapter.OnDateClickListener{
 
     private RecyclerView dateRecyclerView;
     private DateAdapter dateAdapter;
     private List<DateItem> dateList;
-    private Handler handler;
-    private Runnable updateTimeRunnable;
     private TicketAdapter ticketAdapter;
-    private Integer selectedGiaVeIndex= 0;
-    private Integer selectedLoaiGheIndex = 0;
-    private Integer selectedGioDiIndex = 0;
-
+    private Integer selectedGiaVeIndex= 0, selectedLoaiGheIndex = 0, selectedGioDiIndex = 0;
     private String DiemDi, DiemDen, SoLuongVe;
     private Calendar calendarNgayDi,calendarNgayVe;
+    private Long ngayDiMillis;
     private TextView topDiemDi, topDiemDen,currentDateHeader;
     private Boolean isKhuHoi;
     private ImageButton btnBack;
-
-    Spinner spinnerGiaVe, spinnerLoaiGhe, spinnerGioDi;
+    private Spinner spinnerGiaVe, spinnerLoaiGhe, spinnerGioDi;
     List<TicketResponse> orginalTicketList = new ArrayList<>();
     List<TicketResponse> filterTicketList = new ArrayList<>();
-
-    RecyclerView recyclerView;
 
 
     @Override
@@ -81,10 +74,8 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         dateRecyclerView = view.findViewById(R.id.dateRecyclerView);
         topDiemDi = view.findViewById(R.id.ticket_current_location);
         topDiemDen = view.findViewById(R.id.ticket_target_location);
-        dateList = new ArrayList<>();
-        dateAdapter = new DateAdapter(dateList);
-        dateAdapter.setOnDateClickListener(this);
 
+        // -------------------Dữ liệu gửi qua--------------------//
         Bundle arguments = getArguments();
         if(arguments != null){
             DiemDi = arguments.getString("KEY_DIEM_DI");
@@ -105,27 +96,27 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
             if (ngayDiMillis != -1L) {
                 calendarNgayDi = Calendar.getInstance();
                 calendarNgayDi.setTimeInMillis(ngayDiMillis);
-                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
                 ngayDiFormatted = sdf.format(calendarNgayDi.getTime());
             }
 
             String ngayVeFormatted = "N/A";
             if (isKhuHoi && calendarNgayVe != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
                 ngayVeFormatted = sdf.format(calendarNgayVe.getTime());
             }
-
             topDiemDi.setText(DiemDi);
             topDiemDen.setText(DiemDen);
             currentDateHeader.setText(ngayDiFormatted);
-
         }
+        // -------------------------------------------- //
 
-        btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            startActivity(intent);
-            getActivity().finish();
-        });
+
+
+        // ------------------ Hiển thị vé và thanh ngày đi----------------------//
+        dateList = new ArrayList<>();
+        dateAdapter = new DateAdapter(dateList);
+        dateAdapter.setOnDateClickListener(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         dateRecyclerView.setLayoutManager(layoutManager);
@@ -135,100 +126,89 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         ticketRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         List<TicketResponse> ticketList = new ArrayList<>();
-        ticketAdapter = new TicketAdapter(ticketList);
+        ticketAdapter = new TicketAdapter(ticketList, ticket -> {
+            Intent intent = new Intent(getContext(), SelectedSeatActivity.class);
+            intent.putExtra("ticket", ticket);
+            intent.putExtra("ngayDiHeader", ngayDiMillis);
+            startActivity(intent);
+        });
         orginalTicketList = ticketList;
         filterTicketList = new ArrayList<>(ticketList);
         ticketRecyclerView.setAdapter(ticketAdapter);
+        //----------------------------------------------------//
 
+
+
+        // ----------------------- Lọc vé --------------------------- //
         spinnerGiaVe = view.findViewById(R.id.spinnerGiaVe);
         spinnerLoaiGhe = view.findViewById(R.id.spinnerLoaiGhe);
         spinnerGioDi = view.findViewById(R.id.spinnerGioDi);
 
-        String[] itemGiaVe = {"Tất cả", "Dưới 200K", "200K - 500K", "Trên 500K"};
-        String[] itemLoaiGhe = {"Tất cả", "Ghế", "Limousine", "Giường"};
-        String[] itemGioDi = {"Tất cả", "Buổi sáng", "Buổi chiều", "Buổi tối"};
+        List<String> itemGiaVeList = Arrays.asList("Tất cả", "Dưới 200K", "200K - 500K", "Trên 500K");
+        List<String> itemLoaiGheList = Arrays.asList("Tất cả", "Ghế", "Limousine", "Giường");
+        List<String> itemGioDiList = Arrays.asList("Tất cả", "Buổi sáng", "Buổi chiều", "Buổi tối");
 
-        List<String> itemGiaVeList = Arrays.asList(itemGiaVe);
-        List<String> itemLoaiGheList = Arrays.asList(itemLoaiGhe);
-        List<String> itemGioDiList = Arrays.asList(itemGioDi);
+        setupCustomSpinner(spinnerGiaVe, itemGiaVeList, "Giá", selectedGiaVeIndex, pos -> selectedGiaVeIndex = pos);
+        setupCustomSpinner(spinnerLoaiGhe, itemLoaiGheList, "Loại ghế", selectedLoaiGheIndex, pos -> selectedLoaiGheIndex = pos);
+        setupCustomSpinner(spinnerGioDi, itemGioDiList, "Giờ", selectedGioDiIndex, pos -> selectedGioDiIndex = pos);
+        // --------------------------------------------------------//
 
-        CustomSpinner adapterGiaVe = new CustomSpinner(
-                requireContext(),
-                R.layout.spinner_layout,
-                itemGiaVeList,
-                "Giá",
-                selectedGiaVeIndex
-        );
-        adapterGiaVe.setShowSelectedText(false);
-        spinnerGiaVe.setAdapter(adapterGiaVe);
-        spinnerGiaVe.setDropDownVerticalOffset(130);
 
-        spinnerGiaVe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedGiaVeIndex = position;
-                adapterGiaVe.setSelectedIndex(position);
-                applyFilter();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+        // ----------------- Nút quay lại -------------------------//
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+            getActivity().finish();
         });
+        //---------------------------------------------------------//
 
-        CustomSpinner adapterLoaiGhe = new CustomSpinner(
-                requireContext(),
-                R.layout.spinner_layout,
-                itemLoaiGheList,
-                "Loại ghế",
-                selectedLoaiGheIndex
-        );
-        adapterLoaiGhe.setShowSelectedText(false);
-        spinnerLoaiGhe.setAdapter(adapterLoaiGhe);
-        spinnerLoaiGhe.setDropDownVerticalOffset(130);
-
-        spinnerLoaiGhe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLoaiGheIndex = position;
-                adapterLoaiGhe.setSelectedIndex(position);
-                applyFilter();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-
-        CustomSpinner adapterGioDi = new CustomSpinner(
-                requireContext(),
-                R.layout.spinner_layout,
-                itemGioDiList,
-                "Giờ",
-                selectedGioDiIndex
-        );
-        adapterGioDi.setShowSelectedText(false);
-        spinnerGioDi.setAdapter(adapterGioDi);
-        spinnerGioDi.setDropDownVerticalOffset(130);
-
-        spinnerGioDi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedGioDiIndex = position;
-                adapterGioDi.setSelectedIndex(position);
-                applyFilter();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        // ------------Gửi yêu cầu lên server--------------//
+        updateDateDisplay();
+        sendDataToServer();
+        //--------------------------------------------------//
 
         return view;
+    }
+
+    private interface OnSpinnerItemSelected {
+        void onItemSelected(int position);
+    }
+
+    private void setupCustomSpinner(
+            Spinner spinner,
+            List<String> items,
+            String hint,
+            int selectedIndex,
+            OnSpinnerItemSelected listener
+    ) {
+        CustomSpinner adapter = new CustomSpinner(
+                requireContext(),
+                R.layout.spinner_layout,
+                items,
+                hint,
+                selectedIndex
+        );
+        adapter.setShowSelectedText(false);
+        spinner.setAdapter(adapter);
+        spinner.setDropDownVerticalOffset(130);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                listener.onItemSelected(position);
+                adapter.setSelectedIndex(position);
+                applyFilter();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     @Override
     public void onDateClick(DateItem dateItem) {
         calendarNgayDi = dateItem.getDate();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
         currentDateHeader.setText(sdf.format(calendarNgayDi.getTime()));
         sendDataToServer();
     }
@@ -237,32 +217,51 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         String diemDi = DiemDi;
         String diemDen = DiemDen;
         String soLuongVe = SoLuongVe;
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", new Locale("vi", "VN"));
         String ngayDiFormatted = sdf.format(calendarNgayDi.getTime());
 
-        // Thay đường dẫn này thành link đến server
-        String baseUrl = "https://684c3de1ed2578be881e322c.mockapi.io/getTicket";
-        String url = baseUrl + "?" +
-                "DiemDi=" + diemDi +
-                "&DiemDen=" + diemDen +
-                "&NgayDi=" + ngayDiFormatted;
+        ngayDiMillis = calendarNgayDi.getTimeInMillis();
 
-        String ngayVeFormatted = "";
+        String baseUrl = "https://684c3de1ed2578be881e322c.mockapi.io/getTicket";
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
+        urlBuilder.addQueryParameter("DiemDi", diemDi);
+        urlBuilder.addQueryParameter("DiemDen", diemDen);
+        urlBuilder.addQueryParameter("NgayDi", ngayDiFormatted);
+
         if (isKhuHoi && calendarNgayVe != null) {
-            ngayVeFormatted = sdf.format(calendarNgayVe.getTime());
-            url += "&NgayVe=" + ngayVeFormatted;
+            String ngayVeFormatted = sdf.format(calendarNgayVe.getTime());
+            urlBuilder.addQueryParameter("NgayVe", ngayVeFormatted);
         }
 
+        String url = urlBuilder.build().toString();
         Log.d("MockServerURL", "URL gọi đến: " + url);
-        RequestQueue queue = Volley.newRequestQueue(getContext());
 
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
-                response -> {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
                     try {
+                        JSONArray jsonArray = new JSONArray(responseBody);
                         List<TicketResponse> newTicketList = new ArrayList<>();
-                        for (int i = 0; i < response.length(); i++) {
-                            JSONObject obj = response.getJSONObject(i);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
                             TicketResponse ticket = new TicketResponse(
+                                    obj.getString("ticketID"),
                                     obj.getString("ThoiGianDi"),
                                     obj.getString("ThoiGianDen"),
                                     obj.getString("GiaVe"),
@@ -275,51 +274,25 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
                             newTicketList.add(ticket);
                         }
 
-                        // Cập nhật RecyclerView
-                        orginalTicketList.clear();
-                        orginalTicketList.addAll(newTicketList);
-                        applyFilter();
+                        requireActivity().runOnUiThread(() -> {
+                            orginalTicketList.clear();
+                            orginalTicketList.addAll(newTicketList);
+                            applyFilter();
+                        });
 
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(getContext(), "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show();
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(getContext(), "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show()
+                        );
                     }
-                },
-                error -> {
-                    error.printStackTrace();
-                    Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
+                } else {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show()
+                    );
                 }
-        );
-
-
-        queue.add(request);
-    }
-
-
-    private List<TicketResponse> generateMockTicketsForDate(Calendar date) {
-        List<TicketResponse> mockList = new ArrayList<>();
-
-        int day = date.get(Calendar.DAY_OF_MONTH);
-        int month = date.get(Calendar.MONTH);
-        int year = date.get(Calendar.YEAR);
-
-        return mockList;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        handler = new Handler(Looper.getMainLooper());
-        updateTimeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(this, 60 * 1000);
             }
-        };
-
-        updateDateDisplay();
-        sendDataToServer();
-        handler.post(updateTimeRunnable);
+        });
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -359,14 +332,6 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         dateRecyclerView.scrollToPosition(finalScrollPosition);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (handler != null && updateTimeRunnable != null) {
-            handler.removeCallbacks(updateTimeRunnable);
-        }
-    }
-
     private void applyFilter() {
         String giaVeFilter = spinnerGiaVe.getSelectedItem().toString();
         String loaiGheFilter = spinnerLoaiGhe.getSelectedItem().toString();
@@ -401,15 +366,5 @@ public class TicketTrip extends Fragment implements DateAdapter.OnDateClickListe
         }
         ticketAdapter.updateList(filterTicketList);
     }
-
-
-    private String normalizeString(String input) {
-        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
-        normalized = normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", ""); // Xóa dấu
-        normalized = normalized.replaceAll("\\s+", "");
-        normalized = normalized.replaceAll("Đ", "d");
-        return normalized.toLowerCase();
-    }
-
 
 }

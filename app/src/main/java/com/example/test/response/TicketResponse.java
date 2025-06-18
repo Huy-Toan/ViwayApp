@@ -1,10 +1,14 @@
 package com.example.test.response;
 import com.google.gson.annotations.SerializedName;
-public class TicketResponse {
 
+import java.io.Serializable;
+
+public class TicketResponse implements Serializable {
+
+    @SerializedName("ticketID")
+    private String ticketId;
     @SerializedName("ThoiGianDi")
     private String gioDi;
-
     @SerializedName("ThoiGianDen")
     private String gioDen;
     @SerializedName("GiaVe")
@@ -20,7 +24,8 @@ public class TicketResponse {
     @SerializedName("DiemDen")
     private String diemDen;
 
-    public TicketResponse(String gioDi, String gioDen, String giaVe, String loaiGhe, String soLuongGhe, String diemDi,String khoangCach, String diemDen){
+    public TicketResponse(String ticketId,String gioDi, String gioDen, String giaVe, String loaiGhe, String soLuongGhe, String diemDi,String khoangCach, String diemDen){
+        this.ticketId = ticketId;
         this.gioDi = gioDi;
         this.gioDen = gioDen;
         this.giaVe = giaVe;
@@ -61,5 +66,9 @@ public class TicketResponse {
 
     public String getDiemDen() {
         return diemDen;
+    }
+
+    public String getTicketId() {
+        return ticketId;
     }
 }

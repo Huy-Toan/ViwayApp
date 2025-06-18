@@ -2,6 +2,7 @@ package com.example.test.fragment;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -55,11 +56,18 @@ public class HomeFragment extends Fragment {
     CustomSpinner adapterDiemDi, adapterDiemDen, adapterSoLuongVe;
 
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        //-------------- Set ngày tháng mặc định tiếng Việt------------------------
+        Locale locale = new Locale("vi", "VN");
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+        //-----------------------------------------------------------------------------
 
         spinnerDiemDi = view.findViewById(R.id.spinnerDiemDi);
         spinnerDiemDen = view.findViewById(R.id.spinnerDiemDen);
@@ -218,6 +226,7 @@ public class HomeFragment extends Fragment {
         checkBoxKhuHoi.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             ngayVe.setEnabled(isChecked);
         }));
+
         ngayVe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -289,7 +298,7 @@ public class HomeFragment extends Fragment {
                         currentCalender.set(Calendar.MONTH, month);
                         currentCalender.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                        SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+                        SimpleDateFormat dayOfWeekFormat = new SimpleDateFormat("EEEE", new Locale("vi", "VN"));
                         String dayOfWeek = dayOfWeekFormat.format(currentCalender.getTime());
                         textViewThu.setText(dayOfWeek);
                         updateDateInview(textViewDay,textViewThu, currentCalender);
@@ -302,7 +311,7 @@ public class HomeFragment extends Fragment {
         DatePicker datePicker = datePickerDialog.getDatePicker();
         datePicker.setMinDate(System.currentTimeMillis() - 1000);
         Calendar maxDateCalendar = Calendar.getInstance();
-        maxDateCalendar.add(Calendar.DAY_OF_MONTH, 60);// Giới hạn 60
+        maxDateCalendar.add(Calendar.DAY_OF_MONTH, 60);// Giới hạn 60 ngày
         datePicker.setMaxDate(maxDateCalendar.getTimeInMillis());
         datePickerDialog.show();
     }
@@ -310,9 +319,10 @@ public class HomeFragment extends Fragment {
     private void updateDateInview(TextView textView,TextView textViewThu, Calendar currentCalender){
         String myForm = "dd/MM";
         String dayOfWeekFormat = "EEEE";
+        Locale localeVN = new Locale("vi", "VN");
 
-        SimpleDateFormat sdf = new SimpleDateFormat(myForm, Locale.US);
-        SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat(dayOfWeekFormat, Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat(myForm, localeVN);
+        SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat(dayOfWeekFormat, localeVN);
         String dayOfWeek = sdfDayOfWeek.format(currentCalender.getTime());
 
         textView.setText(sdf.format(currentCalender.getTime()));

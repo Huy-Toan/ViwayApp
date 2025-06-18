@@ -1,4 +1,4 @@
-package com.example.test.login;
+package com.example.test.login_logout;
 
 import android.content.Intent;
 import android.os.Bundle;

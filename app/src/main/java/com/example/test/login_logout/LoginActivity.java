@@ -1,4 +1,4 @@
-package com.example.test.login;
+package com.example.test.login_logout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -45,6 +45,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("VIWAY", MODE_PRIVATE);
+        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+
+        if (isLoggedIn) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.login), (v, insets) -> {
@@ -78,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
     }
 
     private void loginUser (String Email, String Password) {
@@ -113,9 +123,9 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         JSONObject user = jsonArray.getJSONObject(0);
-                        String name = user.optString("name", "name");
-                        String userId = user.optString("userId","userId");
-                        String token = user.optString("token", "token");
+                        String name = user.optString("name", "Chưa có tên");
+                        String userId = user.optString("userId","Chưa có ID");
+                        String token = user.optString("token", "Chưa có token");
 
                         SharedPreferences sharedPreferences = getSharedPreferences("VIWAY", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();

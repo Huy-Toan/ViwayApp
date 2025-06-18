@@ -18,7 +18,6 @@ import com.example.test.fragment.AccountFragment;
 import com.example.test.fragment.HistoryFragment;
 import com.example.test.fragment.HomeFragment;
 import com.example.test.fragment.NotifyFragment;
-import com.example.test.fragment.TicketTrip;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,15 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
         name = findViewById(R.id.account_name);
 
-        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        String NamePre = prefs.getString("username", null);
-
+        SharedPreferences prefs = getSharedPreferences("VIWAY", MODE_PRIVATE);
+        String NamePre = prefs.getString("name", null);
         name.setText(NamePre);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
