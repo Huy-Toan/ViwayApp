@@ -32,12 +32,12 @@ public class TicketHistoryAdapter extends RecyclerView.Adapter<TicketHistoryAdap
         public TicketViewHolder(View itemView) {
             super(itemView);
 
-            maVe = itemView.findViewById(R.id.maVe);
-            tuyenDuongDi = itemView.findViewById(R.id.tuyenDuongDi);
-            tuyenDuongDen = itemView.findViewById(R.id.tuyenDuongDen);
-            viTriGhe = itemView.findViewById(R.id.viTriGhe);
-            gioXuatBen = itemView.findViewById(R.id.gioXuatBen);
-            hoTroButton = itemView.findViewById(R.id.hoTro);
+            maVe = itemView.findViewById(R.id.TicketHistory_maVe);
+            tuyenDuongDi = itemView.findViewById(R.id.TicketHistory_DiemDi);
+            tuyenDuongDen = itemView.findViewById(R.id.TicketHistory_DiemDen);
+            viTriGhe = itemView.findViewById(R.id.TicketHistory_viTriGhe);
+            gioXuatBen = itemView.findViewById(R.id.TicketHistory_gioXuatBen);
+            hoTroButton = itemView.findViewById(R.id.TicketHistory_hoTro);
         }
     }
 

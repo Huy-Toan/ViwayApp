@@ -3,6 +3,7 @@ package com.example.test.fragment;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.test.ConfirmInfoPaymentActivity;
 import com.example.test.R;
 import com.example.test.response.TicketResponse;
 import com.example.test.response.UserInfoResponse;
@@ -60,6 +62,8 @@ public class InforPaymentFragment extends Fragment {
     private TicketResponse ticket;
     private ArrayList<String> selectedSeats;
 
+    private UserInfoResponse userInfo;
+
     @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -67,13 +71,14 @@ public class InforPaymentFragment extends Fragment {
 
         btnBack = view.findViewById(R.id.btn_thongTin_back);
         btnEdit = view.findViewById(R.id.btn_thonTinEdit);
+
         btnNext = view.findViewById(R.id.thongTin_btnNext);
         diemDenHeader = view.findViewById(R.id.thongTin_diemDen);
         diemDiHeader = view.findViewById(R.id.thongTin_diemDi);
         ngayDiHeader = view.findViewById(R.id.thongTin_thoiGianDi);
-        fullName = view.findViewById(R.id.tv_thongTin_HoVaTen);
-        phone = view.findViewById(R.id.tv_thongTin_Sdt);
-        email = view.findViewById(R.id.tv_thongTin_Email);
+        fullName = view.findViewById(R.id.thongTin_tvHoVaTen);
+        phone = view.findViewById(R.id.thongTin_tvSdt);
+        email = view.findViewById(R.id.thongTin_tvEmail);
         gheDaChon = view.findViewById(R.id.thongTin_viTriGhe);
         giaVe = view.findViewById(R.id.thongTin_GiaVe);
         loaiGhe = view.findViewById(R.id.thongTin_LoaiGhe);
@@ -153,9 +158,16 @@ public class InforPaymentFragment extends Fragment {
             getActivity().finish();
         });
 
-        Log.d("TEST_BTN", "btnNext = " + btnNext);
         btnNext.setOnClickListener(v -> {
-            Log.d("BTN_NEXT", "Bạn đã nhấn nút Next");
+            Intent intent = new Intent(getContext(), ConfirmInfoPaymentActivity.class);
+            intent.putExtra("ticket", ticket);
+            intent.putExtra("ngayDiHeader", ngaydi);
+            ArrayList<String> selectedList = new ArrayList<>(selectedSeats);
+            intent.putStringArrayListExtra("selectedSeats", selectedList);
+            intent.putExtra("userInfo", userInfo);
+
+            startActivity(intent);
+
         });
 
 
@@ -200,7 +212,7 @@ public class InforPaymentFragment extends Fragment {
                             String phone = obj.getString("phone");
                             String email = obj.getString("email");
 
-                            UserInfoResponse userInfo = new UserInfoResponse(userId,fullname, phone, email);
+                            userInfo = new UserInfoResponse(userId,fullname, phone, email);
 
                             requireActivity().runOnUiThread(() -> updateDisplay(userInfo));
                         }

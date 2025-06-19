@@ -97,7 +97,6 @@
                         </TableRow>
 
                         <TableRow>
-
                             <CheckBox
                                 android:id="@+id/checkbox_khuHoi"
                                 android:layout_width="wrap_content"
@@ -151,16 +150,6 @@
                                 android:gravity="center"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
-<!--                            <TextView-->
-<!--                                android:id="@+id/soLuongVe"-->
-<!--                                android:layout_height="40dp"-->
-<!--                                android:drawableEnd="@drawable/ic_dropdown"-->
-<!--                                android:drawableTint="#000000"-->
-<!--                                android:gravity="right"-->
-<!--                                android:padding="10dp"-->
-<!--                                android:textStyle="bold"-->
-<!--                                android:textSize="16sp"-->
-<!--                                android:text="1" />-->
 
                             <androidx.appcompat.widget.AppCompatSpinner
                                 android:id="@+id/soLuongVe"

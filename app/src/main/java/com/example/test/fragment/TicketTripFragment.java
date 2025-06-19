@@ -64,16 +64,17 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     List<TicketResponse> filterTicketList = new ArrayList<>();
 
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.ticket_result, container, false);
 
-        btnBack = view.findViewById(R.id.btn_ticket_back);
-        currentDateHeader = view.findViewById(R.id.time_ticket_go);
+        btnBack = view.findViewById(R.id.TicketResult_btnBack);
+        currentDateHeader = view.findViewById(R.id.TicketResult_ThoiGianHeader);
         dateRecyclerView = view.findViewById(R.id.dateRecyclerView);
-        topDiemDi = view.findViewById(R.id.ticket_current_location);
-        topDiemDen = view.findViewById(R.id.ticket_target_location);
+        topDiemDi = view.findViewById(R.id.TicketResult_DiemDiHeader);
+        topDiemDen = view.findViewById(R.id.TicketResult_DiemDenHeader);
 
         // -------------------Dữ liệu gửi qua--------------------//
         Bundle arguments = getArguments();

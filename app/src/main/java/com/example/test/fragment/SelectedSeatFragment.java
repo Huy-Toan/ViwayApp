@@ -60,22 +60,22 @@ public class SelectedSeatFragment extends Fragment {
     Map<String, Button> seatButtonsMap = new HashMap<>();
     Set<String> selectedSeats = new HashSet<>();
 
-    @SuppressLint("WrongViewCast")
+    @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.select_chair, container, false);
 
-        diemDiHeader = view.findViewById(R.id.chonGhe_diemDi);
-        diemDenHeader = view.findViewById(R.id.chonGhe_diemDen);
-        ngayDiHeader = view.findViewById(R.id.chonGhe_thoiGianDi);
+        diemDiHeader = view.findViewById(R.id.chonGhe_diemDiHeader);
+        diemDenHeader = view.findViewById(R.id.chonGhe_diemDenHeader);
+        ngayDiHeader = view.findViewById(R.id.chonGhe_thoiGianHeader);
         gioDi = view.findViewById(R.id.chonGhe_gioLenXe);
         ngayDi = view.findViewById(R.id.chonGhe_ngayXuatBen);
         soLuongVe = view.findViewById(R.id.chonGhe_SoLuongGhe);
         giaTien = view.findViewById(R.id.chonGhe_TongTien);
 
-        btnBack = view.findViewById(R.id.btn_chonGhe_back);
-        btnNext = view.findViewById(R.id.btn_chonGhe_TiepTuc);
+        btnBack = view.findViewById(R.id.chonGhe_btnBack);
+        btnNext = view.findViewById(R.id.chonGhe_btnTiepTuc);
 
         btnA1 = view.findViewById(R.id.btnA01);
         btnA2 = view.findViewById(R.id.btnA02);

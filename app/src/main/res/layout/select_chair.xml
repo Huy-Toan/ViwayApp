@@ -49,7 +49,7 @@
             android:layout_height="match_parent">
 
             <ImageButton
-                android:id="@+id/btn_chonGhe_back"
+                android:id="@+id/chonGhe_btnBack"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -70,7 +70,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
                         <TextView
-                            android:id="@+id/chonGhe_diemDi"
+                            android:id="@+id/chonGhe_diemDiHeader"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="16sp"
@@ -86,7 +86,7 @@
                             android:src="@drawable/ic_huongdi"/>
 
                         <TextView
-                            android:id="@+id/chonGhe_diemDen"
+                            android:id="@+id/chonGhe_diemDenHeader"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="16sp"
@@ -99,7 +99,7 @@
 
                 <TableRow>
                     <TextView
-                        android:id="@+id/chonGhe_thoiGianDi"
+                        android:id="@+id/chonGhe_thoiGianHeader"
                         android:gravity="center"
                         android:textColor="@android:color/white"
                         android:text="Thứ 4 , 28/05/2025"/>
@@ -724,7 +724,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/btn_chonGhe_TiepTuc"
+            android:id="@+id/chonGhe_btnTiepTuc"
             android:layout_margin="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -21,6 +21,9 @@
             android:name=".InforPaymentActivity"
             android:exported="false" />
         <activity
+            android:name=".ConfirmInfoPaymentActivity"
+            android:exported="false" />
+        <activity
             android:name=".login_logout.RegisterActivity"
             android:exported="false" />
         <activity android:name=".TicketTripActivity" />

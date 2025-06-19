@@ -23,7 +23,7 @@
             android:stretchColumns="*">
             <TableRow>
                 <TextView
-                    android:id="@+id/tieu_de_notify"
+                    android:id="@+id/Notify_tieuDe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
@@ -33,7 +33,7 @@
             </TableRow>
             <TableRow>
                 <TextView
-                    android:id="@+id/time_notify"
+                    android:id="@+id/Notify_thoiGian"
                     android:layout_span="3"
                     android:padding="5dp"
                     android:text="13:40 05/02/2025"
@@ -41,7 +41,7 @@
             </TableRow>
             <TableRow>
                 <TextView
-                    android:id="@+id/content_notify"
+                    android:id="@+id/Notify_noiDung"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="none"

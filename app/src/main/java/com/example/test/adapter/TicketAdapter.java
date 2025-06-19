@@ -37,13 +37,13 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
         public TicketTripHolder(View itemView){
             super(itemView);
 
-            gioDi = itemView.findViewById(R.id.gioDi);
-            gioDen = itemView.findViewById(R.id.gioDen);
-            giaVe = itemView.findViewById(R.id.giaVe);
-            loaiGhe = itemView.findViewById(R.id.loaiGhe);
-            soLuongGhe = itemView.findViewById(R.id.soLuongGhe);
+            gioDi = itemView.findViewById(R.id.ticket_gioDi);
+            gioDen = itemView.findViewById(R.id.ticket_gioDen);
+            giaVe = itemView.findViewById(R.id.ticket_giaVe);
+            loaiGhe = itemView.findViewById(R.id.ticket_loaiGhe);
+            soLuongGhe = itemView.findViewById(R.id.ticket_soLuongGhe);
             ticket_Diemdi = itemView.findViewById(R.id.ticket_diemDi);
-            khoangCach = itemView.findViewById(R.id.khoangCach);
+            khoangCach = itemView.findViewById(R.id.ticket_khoangCach);
             ticket_Diemden = itemView.findViewById(R.id.ticket_diemDen);
         }
     }

@@ -6,26 +6,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="Thông tin khách hàng"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="Họ và tên"/>
     <EditText
         android:id="@+id/edtFullname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
         android:hint="Họ và tên"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="15dp"
+        android:text="Số điện thoại"/>
     <EditText
         android:id="@+id/edtPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Số điện thoại"
-        android:layout_margin="5dp"
         android:inputType="phone"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="15dp"
+        android:text="Email"/>
     <EditText
         android:id="@+id/edtEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
         android:hint="Email"
         android:inputType="textEmailAddress"/>
 
@@ -33,6 +56,7 @@
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
         android:backgroundTint="#FF0000"
         android:textSize="20sp"
         android:text="Lưu thông tin"/>

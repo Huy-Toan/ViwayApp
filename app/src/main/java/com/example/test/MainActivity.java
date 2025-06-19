@@ -1,5 +1,6 @@
 package com.example.test;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler sliderHandler = new Handler();
     private TextView name;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        name = findViewById(R.id.account_name);
+        name = findViewById(R.id.home_account_name);
 
         SharedPreferences prefs = getSharedPreferences("VIWAY", MODE_PRIVATE);
         String NamePre = prefs.getString("name", null);

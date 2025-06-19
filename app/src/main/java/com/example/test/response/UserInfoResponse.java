@@ -2,7 +2,9 @@ package com.example.test.response;
 
 import com.google.gson.annotations.SerializedName;
 
-public class UserInfoResponse {
+import java.io.Serializable;
+
+public class UserInfoResponse implements Serializable {
 
     @SerializedName("userId")
     private String userId;

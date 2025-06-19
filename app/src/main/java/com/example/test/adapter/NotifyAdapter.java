@@ -27,9 +27,9 @@ public class NotifyAdapter extends RecyclerView.Adapter<NotifyAdapter.NotifyView
 
         public NotifyViewHolder(View itemView){
             super(itemView);
-            tieuDeThongBao = itemView.findViewById(R.id.tieu_de_notify);
-            thoiGianThongBao = itemView.findViewById(R.id.time_notify);
-            noiDungThongBao = itemView.findViewById(R.id.content_notify);
+            tieuDeThongBao = itemView.findViewById(R.id.Notify_tieuDe);
+            thoiGianThongBao = itemView.findViewById(R.id.Notify_thoiGian);
+            noiDungThongBao = itemView.findViewById(R.id.Notify_noiDung);
         }
     }
 
