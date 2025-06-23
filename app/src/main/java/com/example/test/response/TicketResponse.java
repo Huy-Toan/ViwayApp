@@ -5,26 +5,28 @@ import java.io.Serializable;
 
 public class TicketResponse implements Serializable {
 
-    @SerializedName("ticketID")
-    private String ticketId;
-    @SerializedName("ThoiGianDi")
+    @SerializedName("id")
+    private Integer ticketId;
+    @SerializedName("timeStart")
     private String gioDi;
-    @SerializedName("ThoiGianDen")
+    @SerializedName("timeEnd")
     private String gioDen;
-    @SerializedName("GiaVe")
-    private String giaVe;
-    @SerializedName("LoaiGhe")
+    @SerializedName("price")
+    private Integer giaVe;
+    @SerializedName("vehicleKind")
     private String loaiGhe;
-    @SerializedName("SoLuongGhe")
-    private String soLuongGhe;
-    @SerializedName("DiemDi")
+    @SerializedName("availableSeats")
+    private Integer soLuongGhe;
+    @SerializedName("startLocation")
     private String diemDi;
-    @SerializedName("KhoangCach")
-    private String khoangCach;
-    @SerializedName("DiemDen")
+    @SerializedName("distance")
+    private Integer khoangCach;
+    @SerializedName("estimatedDuration")
+    private String thoiGianDi;
+    @SerializedName("endLocation")
     private String diemDen;
 
-    public TicketResponse(String ticketId,String gioDi, String gioDen, String giaVe, String loaiGhe, String soLuongGhe, String diemDi,String khoangCach, String diemDen){
+    public TicketResponse(Integer ticketId,String gioDi, String gioDen, Integer giaVe, String loaiGhe, Integer soLuongGhe, String diemDi,Integer khoangCach,String thoiGianDi, String diemDen){
         this.ticketId = ticketId;
         this.gioDi = gioDi;
         this.gioDen = gioDen;
@@ -33,6 +35,7 @@ public class TicketResponse implements Serializable {
         this.soLuongGhe = soLuongGhe;
         this.diemDi = diemDi;
         this.khoangCach = khoangCach;
+        this.thoiGianDi = thoiGianDi;
         this.diemDen = diemDen;
     }
 
@@ -44,7 +47,7 @@ public class TicketResponse implements Serializable {
         return gioDen;
     }
 
-    public String getGiaVe() {
+    public Integer getGiaVe() {
         return giaVe;
     }
 
@@ -52,7 +55,7 @@ public class TicketResponse implements Serializable {
         return loaiGhe;
     }
 
-    public String getSoLuongGhe() {
+    public Integer getSoLuongGhe() {
         return soLuongGhe;
     }
 
@@ -60,7 +63,7 @@ public class TicketResponse implements Serializable {
         return diemDi;
     }
 
-    public String getKhoangCach() {
+    public Integer getKhoangCach() {
         return khoangCach;
     }
 
@@ -68,7 +71,11 @@ public class TicketResponse implements Serializable {
         return diemDen;
     }
 
-    public String getTicketId() {
+    public Integer getTicketId() {
         return ticketId;
+    }
+
+    public String getThoiGianDi() {
+        return thoiGianDi;
     }
 }

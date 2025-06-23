@@ -54,8 +54,8 @@ public class SelectedSeatFragment extends Fragment {
     private ImageButton btnBack;
     private Button btnA1,btnA2,btnA3,btnA4,btnA5,btnA6,btnA7,btnA8,btnA9,btnA10,btnA11,btnA12,btnA13,btnA15,btnA16,btnA17;
     private Button btnB1,btnB2,btnB3,btnB4,btnB5,btnB6,btnB7,btnB8,btnB9,btnB10,btnB11,btnB12,btnB13,btnB14,btnB15,btnB16,btnB17;
-    private Integer giaVe = 0, tongTien = 0;
-    private String ngaydi, ticketId = null;
+    private Integer giaVe = 0, tongTien = 0, ticketId;
+    private String ngaydi;
     private TicketResponse ticket;
     Map<String, Button> seatButtonsMap = new HashMap<>();
     Set<String> selectedSeats = new HashSet<>();
@@ -125,14 +125,14 @@ public class SelectedSeatFragment extends Fragment {
                 ngayDiHeader.setText(ngaydi);
                 gioDi.setText(ticket.getGioDi());
                 ngayDi.setText(ngaydi);
-                giaVe = Integer.parseInt(ticket.getGiaVe());
+                giaVe = ticket.getGiaVe();
                 ticketId = ticket.getTicketId();
             }
 
             Log.d("SelectedSeatFragment", "TicketID: " + ticketId);
         }
 
-        fetchSeatStatus(ticketId);
+        fetchSeatStatus(ticketId.toString());
 
         btnBack.setOnClickListener(v -> {
             getActivity().finish();
@@ -151,11 +151,7 @@ public class SelectedSeatFragment extends Fragment {
     }
 
     private void fetchSeatStatus (String ticketId) {
-        String baseUrl = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getStatus";
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
-        urlBuilder.addQueryParameter("ticketID", ticketId);
-
-        String url = urlBuilder.build().toString();
+        String url = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getStatus";
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()

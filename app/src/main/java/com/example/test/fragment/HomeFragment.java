@@ -55,7 +55,6 @@ public class HomeFragment extends Fragment {
     private CheckBox checkBoxKhuHoi;
     CustomSpinner adapterDiemDi, adapterDiemDen, adapterSoLuongVe;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saveInstanceState) {
@@ -88,11 +87,9 @@ public class HomeFragment extends Fragment {
         ngayVe.setEnabled(false);
 
         List<SliderItem> sliderItems = new ArrayList<>();
-        sliderItems.add(new SliderItem(R.drawable.image1));
-        sliderItems.add(new SliderItem(R.drawable.image2));
-        sliderItems.add(new SliderItem(R.drawable.image3));
-        sliderItems.add(new SliderItem(R.drawable.image4));
-        sliderItems.add(new SliderItem(R.drawable.image5));
+        sliderItems.add(new SliderItem(R.drawable.banner1));
+        sliderItems.add(new SliderItem(R.drawable.banner3));
+        sliderItems.add(new SliderItem(R.drawable.banner4));
 
         viewPager2.setAdapter(new SliderAdapter(sliderItems, viewPager2));
         viewPager2.setClipToPadding(false);
@@ -121,7 +118,7 @@ public class HomeFragment extends Fragment {
         });
 
 
-        String[] diaDiemList = {"TP. HCM", "Hà Nội", "Đà Nẵng", "Bình Định"};
+        String[] diaDiemList = {"Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Bình Định"};
         List<String> itemDiaDiemList = Arrays.asList(diaDiemList);
         String[] SoLuongVe = {"1", "2", "3", "4", "5", "6"};
         List<String> itemSoLuongVeList = Arrays.asList(SoLuongVe);
@@ -137,6 +134,7 @@ public class HomeFragment extends Fragment {
         adapterDiemDi.setShowSelectedText(true);
         spinnerDiemDi.setAdapter(adapterDiemDi);
         spinnerDiemDi.setDropDownVerticalOffset(130);
+        spinnerDiemDi.setDropDownWidth(dpToPx(150));
         spinnerDiemDi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -154,7 +152,7 @@ public class HomeFragment extends Fragment {
 
         adapterDiemDen = new CustomSpinner(
                 requireContext(),
-                R.layout.spinner_layout,
+                R.layout.spinner_layout_right,
                 itemDiaDiemList,
                 "Điểm đến",
                 selectedDiemDenIndex
@@ -163,6 +161,8 @@ public class HomeFragment extends Fragment {
         adapterDiemDen.setShowSelectedText(true);
         spinnerDiemDen.setAdapter(adapterDiemDen);
         spinnerDiemDen.setDropDownVerticalOffset(130);
+        spinnerDiemDen.setDropDownHorizontalOffset(dpToPx(-40));
+        spinnerDiemDen.setDropDownWidth(dpToPx(150));
         spinnerDiemDen.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -327,6 +327,10 @@ public class HomeFragment extends Fragment {
 
         textView.setText(sdf.format(currentCalender.getTime()));
         textViewThu.setText(dayOfWeek);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
 }

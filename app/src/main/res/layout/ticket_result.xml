@@ -184,6 +184,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <TextView
+            android:id="@+id/TicketResult_noData"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Không có dữ liệu"
+            android:textSize="20sp"
+            android:gravity="center|center_vertical"
+            android:visibility="gone"
+            android:padding="16dp"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/item_Ticket"
             android:layout_width="wrap_content"

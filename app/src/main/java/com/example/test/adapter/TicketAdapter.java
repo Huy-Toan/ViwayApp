@@ -11,7 +11,10 @@ import androidx.annotation.NonNull;
 import com.example.test.response.TicketHistoryResponse;
 import com.example.test.response.TicketResponse;
 import com.example.test.R;
+
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTripHolder> {
 
@@ -22,7 +25,6 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
         this.ticketResponseList = ticketResponseList;
         this.listener = listener;
     }
-
     public static class TicketTripHolder extends RecyclerView.ViewHolder{
         public TextView gioDi;
         public TextView gioDen;
@@ -58,14 +60,18 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
     @Override
     public void onBindViewHolder (@NonNull TicketAdapter.TicketTripHolder holder, int position){
         TicketResponse currenTicket = ticketResponseList.get(position);
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        String giaVeFormatted = formatter.format(currenTicket.getGiaVe()) + " VNĐ";
+        String soLuongGheFormatted = "Còn " + formatter.format(currenTicket.getSoLuongGhe()) + " chỗ";
+        String khoangCachFormatted = "Khoảng cách " + formatter.format(currenTicket.getKhoangCach()) + " km - " + currenTicket.getThoiGianDi();
 
         holder.gioDi.setText(currenTicket.getGioDi());
         holder.gioDen.setText(currenTicket.getGioDen());
-        holder.giaVe.setText(currenTicket.getGiaVe());
+        holder.giaVe.setText(giaVeFormatted);
         holder.loaiGhe.setText(currenTicket.getLoaiGhe());
-        holder.soLuongGhe.setText("Còn " +currenTicket.getSoLuongGhe() + " chỗ");
+        holder.soLuongGhe.setText(soLuongGheFormatted);
         holder.ticket_Diemdi.setText(currenTicket.getDiemDi());
-        holder.khoangCach.setText("Khoảng cách " +currenTicket.getKhoangCach());
+        holder.khoangCach.setText(khoangCachFormatted);
         holder.ticket_Diemden.setText(currenTicket.getDiemDen());
 
         holder.itemView.setOnClickListener(v -> {
@@ -88,6 +94,5 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
     public interface OnTicketClickListener {
         void onTicketClick(TicketResponse ticket);
     }
-
 
 }

@@ -1,12 +1,16 @@
 package com.example.test;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -21,10 +25,21 @@ import com.example.test.fragment.HomeFragment;
 import com.example.test.fragment.NotifyFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
 
-    private ViewPager2 viewPager2;
-    private Handler sliderHandler = new Handler();
     private TextView name;
 
     @SuppressLint("MissingInflatedId")
@@ -42,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         name = findViewById(R.id.home_account_name);
 
         SharedPreferences prefs = getSharedPreferences("VIWAY", MODE_PRIVATE);
-        String NamePre = prefs.getString("name", null);
+        String NamePre = prefs.getString("fullName", null);
         name.setText(NamePre);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -81,4 +96,5 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
+
 }

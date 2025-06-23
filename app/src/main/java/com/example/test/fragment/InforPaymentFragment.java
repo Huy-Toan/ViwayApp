@@ -58,7 +58,8 @@ public class InforPaymentFragment extends Fragment {
             gioDen, diemLenXe,khoangCach, diemXuongXe, benXeMacDinh;
 
     private ImageView imgDiemDi, imgDiemDen, imgLineDown;
-    private String ngaydi, ticketId = null, userId, viTriDonKhach;
+    private String ngaydi, viTriDonKhach;
+    private Integer ticketId, userId;
     private TicketResponse ticket;
     private ArrayList<String> selectedSeats;
 
@@ -129,8 +130,8 @@ public class InforPaymentFragment extends Fragment {
         }
 
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
-        userId = sharedPreferences.getString("userId", null);
-        GetUserInfo(userId);
+        userId = sharedPreferences.getInt("userId", 0);
+        GetUserInfo(userId.toString());
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -257,7 +258,7 @@ public class InforPaymentFragment extends Fragment {
             String newEmail = edtEmail.getText().toString().trim();
 
             // Gửi lên server
-            updateUserInfoToServer(userId, newFullname, newPhone, newEmail);
+            updateUserInfoToServer(userId.toString(), newFullname, newPhone, newEmail);
 
             dialog.dismiss();
         });

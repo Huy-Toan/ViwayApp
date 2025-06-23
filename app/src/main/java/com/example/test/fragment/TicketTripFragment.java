@@ -39,10 +39,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Request;
 
@@ -56,7 +59,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     private String DiemDi, DiemDen, SoLuongVe;
     private Calendar calendarNgayDi,calendarNgayVe;
     private Long ngayDiMillis;
-    private TextView topDiemDi, topDiemDen,currentDateHeader;
+    private TextView topDiemDi, topDiemDen,currentDateHeader,textNoData;
     private Boolean isKhuHoi;
     private ImageButton btnBack;
     private Spinner spinnerGiaVe, spinnerLoaiGhe, spinnerGioDi;
@@ -75,6 +78,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
         dateRecyclerView = view.findViewById(R.id.dateRecyclerView);
         topDiemDi = view.findViewById(R.id.TicketResult_DiemDiHeader);
         topDiemDen = view.findViewById(R.id.TicketResult_DiemDenHeader);
+        textNoData = view.findViewById(R.id.TicketResult_noData);
 
         // -------------------Dữ liệu gửi qua--------------------//
         Bundle arguments = getArguments();
@@ -215,32 +219,46 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     }
 
     private void sendDataToServer() {
-        String diemDi = DiemDi;
-        String diemDen = DiemDen;
-        String soLuongVe = SoLuongVe;
+        String url = "http://192.168.1.94:8080/api/v1/trip/search-trips";
+        OkHttpClient client = new OkHttpClient();
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", new Locale("vi", "VN"));
         String ngayDiFormatted = sdf.format(calendarNgayDi.getTime());
-
         ngayDiMillis = calendarNgayDi.getTimeInMillis();
 
-        String baseUrl = "https://684c3de1ed2578be881e322c.mockapi.io/getTicket";
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
-        urlBuilder.addQueryParameter("DiemDi", diemDi);
-        urlBuilder.addQueryParameter("DiemDen", diemDen);
-        urlBuilder.addQueryParameter("NgayDi", ngayDiFormatted);
+        JSONObject data = new JSONObject();
+        try{
+            data.put("origin", DiemDi);
+            data.put("destination", DiemDen);
+            data.put("departure_date", ngayDiFormatted);
 
-        if (isKhuHoi && calendarNgayVe != null) {
-            String ngayVeFormatted = sdf.format(calendarNgayVe.getTime());
-            urlBuilder.addQueryParameter("NgayVe", ngayVeFormatted);
+            if (isKhuHoi && calendarNgayVe != null) {
+                String ngayVeFormatted = sdf.format(calendarNgayVe.getTime());
+                data.put("return_date", ngayVeFormatted);
+                data.put("is_round_trip", true);
+            } else {
+                data.put("return_date", JSONObject.NULL);
+                data.put("is_round_trip", false);
+            }
+
+            data.put("passengers", SoLuongVe);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
         }
 
-        String url = urlBuilder.build().toString();
-        Log.d("MockServerURL", "URL gọi đến: " + url);
 
-        OkHttpClient client = new OkHttpClient();
+
+        RequestBody requestBody = RequestBody.create(
+                data.toString(),
+                MediaType.parse("application/json")
+        );
+
         Request request = new Request.Builder()
                 .url(url)
-                .get()
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJwaG9uZU51bWJlciI6IjAzMjk2MzE3MjkiLCJzdWIiOiIwMzI5NjMxNzI5IiwiZXhwIjoxNzUzMjE4NjE2fQ.7-r9CrQmGS67tKb7rU1sye2l570m3QV3tHFVyFglc_E")
+                .post(requestBody)
                 .build();
 
         client.newCall(request).enqueue(new okhttp3.Callback() {
@@ -256,29 +274,38 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
+
+                    Log.d("Data send to server", data.toString());
                     try {
                         JSONArray jsonArray = new JSONArray(responseBody);
                         List<TicketResponse> newTicketList = new ArrayList<>();
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj = jsonArray.getJSONObject(i);
                             TicketResponse ticket = new TicketResponse(
-                                    obj.getString("ticketID"),
-                                    obj.getString("ThoiGianDi"),
-                                    obj.getString("ThoiGianDen"),
-                                    obj.getString("GiaVe"),
-                                    obj.getString("LoaiGhe"),
-                                    obj.getString("SoLuongGhe"),
-                                    obj.getString("DiemDi"),
-                                    obj.getString("KhoangCach"),
-                                    obj.getString("DiemDen")
+                                    obj.getInt("id"),
+                                    obj.getString("timeStart"),
+                                    obj.getString("timeEnd"),
+                                    obj.getInt("price"),
+                                    obj.getString("vehicleKind"),
+                                    obj.getInt("availableSeats"),
+                                    obj.getString("startLocation"),
+                                    obj.getInt("distance"),
+                                    obj.getString("estimatedDuration"),
+                                    obj.getString("endLocation")
                             );
                             newTicketList.add(ticket);
                         }
 
                         requireActivity().runOnUiThread(() -> {
                             orginalTicketList.clear();
-                            orginalTicketList.addAll(newTicketList);
-                            applyFilter();
+                            if (newTicketList.isEmpty()) {
+                                textNoData.setVisibility(View.VISIBLE);
+                            } else {
+                                orginalTicketList.addAll(newTicketList);
+                                textNoData.setVisibility(View.GONE);
+                                applyFilter();
+                            }
+                            ticketAdapter.notifyDataSetChanged();
                         });
 
                     } catch (JSONException e) {
@@ -344,7 +371,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
             boolean matches = true;
 
             // Lọc giá vé
-            int giaVe = Integer.parseInt(ticket.getGiaVe().replace(".", "").replace("đ", "").trim());
+            int giaVe = ticket.getGiaVe();
             if (giaVeFilter.equals("Dưới 200K") && giaVe >= 200000) matches = false;
             if (giaVeFilter.equals("200K - 500K") && (giaVe < 200000 || giaVe > 500000)) matches = false;
             if (giaVeFilter.equals("Trên 500K") && giaVe <= 500000) matches = false;
