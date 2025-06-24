@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 public class ConfirmInfoPaymentActivity extends AppCompatActivity {
 
-
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +37,13 @@ public class ConfirmInfoPaymentActivity extends AppCompatActivity {
             if (intent != null) {
                 TicketResponse ticket = (TicketResponse) intent.getSerializableExtra("ticket");
                 String ngayDi = intent.getStringExtra("ngayDiHeader");
+                String diemDon = intent.getStringExtra("diemDon");
+                Boolean trungChuyen = intent.getBooleanExtra("trungChuyen", false);
                 ArrayList<String> selectedList = intent.getStringArrayListExtra("selectedSeats");
                 UserInfoResponse userInfo = (UserInfoResponse) getIntent().getSerializableExtra("userInfo");
 
+                bundle.putBoolean("trungChuyen", trungChuyen);
+                bundle.putString("diemDon", diemDon);
                 bundle.putString("ngayDiHeader", ngayDi);
                 bundle.putSerializable("ticket", ticket);
                 bundle.putStringArrayList("selectedSeats", selectedList);

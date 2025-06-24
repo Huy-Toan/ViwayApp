@@ -1,7 +1,10 @@
 package com.example.test.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +32,7 @@ import com.example.test.R;
 import com.example.test.SelectedSeatActivity;
 import com.example.test.adapter.DateAdapter;
 import com.example.test.adapter.TicketAdapter;
+import com.example.test.config.Config;
 import com.example.test.item.DateItem;
 import com.example.test.response.TicketResponse;
 
@@ -56,7 +60,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     private List<DateItem> dateList;
     private TicketAdapter ticketAdapter;
     private Integer selectedGiaVeIndex= 0, selectedLoaiGheIndex = 0, selectedGioDiIndex = 0;
-    private String DiemDi, DiemDen, SoLuongVe;
+    private String DiemDi, DiemDen, SoLuongVe, token;
     private Calendar calendarNgayDi,calendarNgayVe;
     private Long ngayDiMillis;
     private TextView topDiemDi, topDiemDen,currentDateHeader,textNoData;
@@ -116,11 +120,14 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
         }
         // -------------------------------------------- //
 
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("VIWAY", MODE_PRIVATE);
+        token = sharedPreferences.getString("token", "");
+        Log.d("Token", token);
 
 
         // ------------------ Hiển thị vé và thanh ngày đi----------------------//
         dateList = new ArrayList<>();
-        dateAdapter = new DateAdapter(dateList);
+        dateAdapter = new DateAdapter(dateList, token);
         dateAdapter.setOnDateClickListener(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -169,7 +176,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
 
         // ------------Gửi yêu cầu lên server--------------//
         updateDateDisplay();
-        sendDataToServer();
+        sendDataToServer(token);
         //--------------------------------------------------//
 
         return view;
@@ -211,15 +218,15 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     }
 
     @Override
-    public void onDateClick(DateItem dateItem) {
+    public void onDateClick(DateItem dateItem, String token) {
         calendarNgayDi = dateItem.getDate();
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
         currentDateHeader.setText(sdf.format(calendarNgayDi.getTime()));
-        sendDataToServer();
+        sendDataToServer(token);
     }
 
-    private void sendDataToServer() {
-        String url = "http://192.168.1.94:8080/api/v1/trip/search-trips";
+    private void sendDataToServer(String token) {
+        String baseUrl = Config.BASE_URL+"/trip/search-trips";
         OkHttpClient client = new OkHttpClient();
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", new Locale("vi", "VN"));
@@ -249,15 +256,15 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
         }
 
 
-
         RequestBody requestBody = RequestBody.create(
                 data.toString(),
                 MediaType.parse("application/json")
         );
 
+        Log.d("Url", baseUrl);
         Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJwaG9uZU51bWJlciI6IjAzMjk2MzE3MjkiLCJzdWIiOiIwMzI5NjMxNzI5IiwiZXhwIjoxNzUzMjE4NjE2fQ.7-r9CrQmGS67tKb7rU1sye2l570m3QV3tHFVyFglc_E")
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
                 .post(requestBody)
                 .build();
 
@@ -275,7 +282,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
 
-                    Log.d("Data send to server", data.toString());
+                    Log.d("Data send to server", responseBody);
                     try {
                         JSONArray jsonArray = new JSONArray(responseBody);
                         List<TicketResponse> newTicketList = new ArrayList<>();
@@ -283,15 +290,15 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
                             JSONObject obj = jsonArray.getJSONObject(i);
                             TicketResponse ticket = new TicketResponse(
                                     obj.getInt("id"),
-                                    obj.getString("timeStart"),
-                                    obj.getString("timeEnd"),
+                                    obj.getString("time_start"),
+                                    obj.getString("time_end"),
                                     obj.getInt("price"),
-                                    obj.getString("vehicleKind"),
-                                    obj.getInt("availableSeats"),
-                                    obj.getString("startLocation"),
+                                    obj.getString("vehicle_kind"),
+                                    obj.getInt("available_seats"),
+                                    obj.getString("start_location"),
                                     obj.getInt("distance"),
-                                    obj.getString("estimatedDuration"),
-                                    obj.getString("endLocation")
+                                    obj.getString("estimated_duration"),
+                                    obj.getString("end_location")
                             );
                             newTicketList.add(ticket);
                         }
@@ -315,9 +322,14 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
                         );
                     }
                 } else {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show()
-                    );
+                    String errorBody = response.body() != null ? response.body().string() : "";
+                    requireActivity().runOnUiThread(() -> {
+                        if (response.code() == 400 && errorBody.contains("Không tìm thấy chuyến xe phù hợp")) {
+                            textNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         });

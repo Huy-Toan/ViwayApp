@@ -40,7 +40,7 @@
                         android:layout_centerVertical="true">
 
                         <ImageView
-                            android:id="@+id/home_account_icon"
+                            android:id="@+id/home_accountIcon"
                             android:layout_width="36dp"
                             android:layout_height="41dp"
                             android:layout_marginStart="8dp"
@@ -75,13 +75,12 @@
 
                     <!-- Chăm sóc khách hàng -->
                     <ImageView
-                        android:id="@+id/home_help_icon"
+                        android:id="@+id/home_helpIcon"
                         android:layout_width="41dp"
                         android:layout_height="54dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="21dp"
-                        android:contentDescription="Help icon"
                         android:src="@drawable/contact" />
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>

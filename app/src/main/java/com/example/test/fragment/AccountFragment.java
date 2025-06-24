@@ -1,22 +1,192 @@
 package com.example.test.fragment;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.test.R;
+import com.example.test.config.Config;
+import com.example.test.info.InfoCustumerActivity;
+import com.example.test.login_logout.InputPhoneActivity;
+import com.example.test.response.UserInfoResponse;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class AccountFragment extends Fragment {
+
+    private LinearLayout accountInfo, logOut, deleteAccount;
+    private TextView fullName, phone;
+    private Integer userId;
+    private String token;
+    private UserInfoResponse userInfo;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
+
+
+        accountInfo = view.findViewById(R.id.Account_Info);
+        logOut = view.findViewById(R.id.Account_Logout);
+        deleteAccount = view.findViewById(R.id.Account_DeleteAccount);
+
+        fullName = view.findViewById(R.id.Account_tvFullName);
+        phone = view.findViewById(R.id.Account_tvPhone);
+
+
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getInt("userId", 0);
+        token = sharedPreferences.getString("token", "");
+        GetUserInfo(userId, token);
+
+        accountInfo.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), InfoCustumerActivity.class);
+            startActivity(intent);
+        });
+
+        logOut.setOnClickListener(v -> {
+            showLogoutDialog();
+        });
+
+        deleteAccount.setOnClickListener(v -> {
+            showDeleteAccount();
+        });
+
         return view;
     }
+
+
+    private void GetUserInfo(Integer userId, String token) {
+        String baseUrl = Config.BASE_URL+ "/users/get-info/" + userId;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+
+                    try {
+                        JSONObject obj = new JSONObject(responseBody);
+
+                        String fullname = obj.getString("fullname");
+                        String phone = obj.getString("phone_number");
+                        String email = obj.getString("email");
+
+                        userInfo = new UserInfoResponse(fullname, phone, email);
+
+                        requireActivity().runOnUiThread(() -> updateDisplay(userInfo));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            }
+        });
+    }
+
+    private void updateDisplay(UserInfoResponse userInfo) {
+        fullName.setText(userInfo.getFullname());
+        phone.setText(userInfo.getPhone());
+    }
+
+
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_logout, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+
+        Button btnNo = view.findViewById(R.id.Logout_btnNo);
+        Button btnYes = view.findViewById(R.id.Logout_btnYes);
+
+        btnNo.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        btnYes.setOnClickListener(v -> {
+            requireContext().getSharedPreferences("VIWAY", getContext().MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply();
+
+            dialog.dismiss();
+
+            Intent intent = new Intent(requireContext(), InputPhoneActivity.class);
+            startActivity(intent);
+            requireActivity().finish();
+        });
+    }
+
+
+    private void showDeleteAccount() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_delete_account, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+
+        Button btnNo = view.findViewById(R.id.Delete_btnNo);
+        Button btnYes = view.findViewById(R.id.Delete_btnYes);
+
+        btnNo.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        btnYes.setOnClickListener(v -> {
+            requireContext().getSharedPreferences("VIWAY", getContext().MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply();
+
+            dialog.dismiss();
+
+
+        });
+    }
+
+
 
 }

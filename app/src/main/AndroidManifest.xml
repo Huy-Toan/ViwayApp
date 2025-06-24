@@ -27,6 +27,18 @@
             android:name=".ConfirmInfoPaymentActivity"
             android:exported="false" />
 
+<!--    ................. Info................................ -->
+
+        <activity
+            android:name=".info.InfoCustumerActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".info.EditInfoCustomerActivity"
+            android:exported="false" />
+
+<!--  .................................................      -->
+
         <activity
             android:name=".login_logout.EnterOtpActivity"
             android:exported="false" />
@@ -45,8 +57,28 @@
         <activity android:name=".TicketTripActivity" />
 
         <activity
+            android:name=".support.DanhMucHoTroActivity"
+            android:exported="false" />
+        <activity
+            android:name=".support.NoiDungHoTroActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
-            android:exported="true"/>
+            android:exported="true"
+            android:launchMode="singleTop">
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="viway"
+                    android:host="payment"
+                    android:path="/result" />
+            </intent-filter>
+        </activity>
+
 
         <activity
             android:name=".login_logout.InputPhoneActivity"

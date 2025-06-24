@@ -76,7 +76,7 @@ public class InputPhoneActivity extends AppCompatActivity {
     }
 
     private void sendPhone (String phone) {
-        String url = "http://192.168.1.94:8080/api/v1/otp/send";
+        String url = "http://192.168.1.11:8080/api/v1/otp/send";
         OkHttpClient client = new OkHttpClient();
 
         JSONObject data = new JSONObject();
@@ -101,7 +101,6 @@ public class InputPhoneActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("sendPhone", "Lỗi gửi request: " + e.getMessage(), e);
                 runOnUiThread(() ->
                         Toast.makeText(InputPhoneActivity.this, "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );

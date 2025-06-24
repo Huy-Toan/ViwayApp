@@ -102,6 +102,7 @@
             android:layout_marginTop="100dp"
             android:backgroundTint="#FF0000"
             android:layout_gravity="center"
+            android:textColor="#FFFFFF"
             android:text="Tiếp tục"
             android:textSize="20sp" />
     </LinearLayout>

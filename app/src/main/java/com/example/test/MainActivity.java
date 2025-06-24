@@ -1,11 +1,13 @@
 package com.example.test;
 
+import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ import com.example.test.fragment.AccountFragment;
 import com.example.test.fragment.HistoryFragment;
 import com.example.test.fragment.HomeFragment;
 import com.example.test.fragment.NotifyFragment;
+import com.example.test.support.DanhMucHoTroActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -41,6 +44,8 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     private TextView name;
+    private ImageView btnHelpIcon, btnAccountIcon;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -55,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         name = findViewById(R.id.home_account_name);
+        btnHelpIcon = findViewById(R.id.home_helpIcon);
+        btnAccountIcon = findViewById(R.id.home_accountIcon);
 
         SharedPreferences prefs = getSharedPreferences("VIWAY", MODE_PRIVATE);
         String NamePre = prefs.getString("fullName", null);
@@ -95,6 +102,34 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         });
+
+        btnAccountIcon.setOnClickListener(v -> {
+            bottomNavigationView.setSelectedItemId(R.id.navigation_account);
+        });
+
+        btnHelpIcon.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, DanhMucHoTroActivity.class);
+            startActivity(intent);
+        });
+
     }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        Uri uri = intent.getData();
+        if (uri != null && "viway".equals(uri.getScheme()) && "payment".equals(uri.getHost())) {
+            String status = uri.getQueryParameter("status");
+
+            if ("success".equals(status)) {
+                Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Thanh toán thất bại!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
 }

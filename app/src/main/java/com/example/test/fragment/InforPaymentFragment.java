@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.test.ConfirmInfoPaymentActivity;
 import com.example.test.R;
+import com.example.test.config.Config;
 import com.example.test.response.TicketResponse;
 import com.example.test.response.UserInfoResponse;
 
@@ -34,7 +35,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -58,8 +61,9 @@ public class InforPaymentFragment extends Fragment {
             gioDen, diemLenXe,khoangCach, diemXuongXe, benXeMacDinh;
 
     private ImageView imgDiemDi, imgDiemDen, imgLineDown;
-    private String ngaydi, viTriDonKhach;
+    private String ngaydi, viTriDonKhach, token;
     private Integer ticketId, userId;
+    private Boolean trungChuyen = false;
     private TicketResponse ticket;
     private ArrayList<String> selectedSeats;
 
@@ -107,16 +111,20 @@ public class InforPaymentFragment extends Fragment {
             if (ticket != null && ngaydi != null) {
                 ticketId = ticket.getTicketId();
 
+                NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+                String giaVeFormatted = formatter.format(ticket.getGiaVe()) + " VNĐ";
+                String khoangCachFormatted = "Khoảng cách " + formatter.format(ticket.getKhoangCach()) + " km - " + ticket.getThoiGianDi();
+
                 diemDiHeader.setText(ticket.getDiemDi());
                 diemDenHeader.setText(ticket.getDiemDen());
                 ngayDiHeader.setText(ngaydi);
                 gioDi.setText(ticket.getGioDi());
-                giaVe.setText(ticket.getGiaVe());
+                giaVe.setText(giaVeFormatted);
                 loaiGhe.setText(ticket.getLoaiGhe());
                 gioDen.setText(ticket.getGioDen());
                 gioDi.setText(ticket.getGioDi());
                 diemLenXe.setText(ticket.getDiemDi());
-                khoangCach.setText(ticket.getKhoangCach());
+                khoangCach.setText(khoangCachFormatted);
                 diemXuongXe.setText(ticket.getDiemDen());
                 gheDaChon.setText(TextUtils.join(", ", selectedSeats));
 
@@ -126,12 +134,12 @@ public class InforPaymentFragment extends Fragment {
 
             }
 
-            Log.d("SelectedSeatFragment", "TicketID: " + ticketId);
         }
 
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
         userId = sharedPreferences.getInt("userId", 0);
-        GetUserInfo(userId.toString());
+        token = sharedPreferences.getString("token", "");
+        GetUserInfo(userId, token);
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -144,10 +152,6 @@ public class InforPaymentFragment extends Fragment {
                     edtTrungChuyen.setVisibility(View.VISIBLE);
                     benXeMacDinh.setVisibility(View.GONE);
                 }
-
-                viTriDonKhach = radioBenXeVp.isChecked()
-                        ? benXeMacDinh.getText().toString()
-                        : edtTrungChuyen.getText().toString();
             }
         });
 
@@ -160,9 +164,19 @@ public class InforPaymentFragment extends Fragment {
         });
 
         btnNext.setOnClickListener(v -> {
+            if (radioTrungChuyen.isChecked()) {
+                viTriDonKhach = edtTrungChuyen.getText().toString().trim();
+                trungChuyen = true;
+            } else {
+                viTriDonKhach = ticket.getDiemDi();
+                trungChuyen = false;
+            }
+
             Intent intent = new Intent(getContext(), ConfirmInfoPaymentActivity.class);
             intent.putExtra("ticket", ticket);
             intent.putExtra("ngayDiHeader", ngaydi);
+            intent.putExtra("diemDon", viTriDonKhach);
+            intent.putExtra("trungChuyen", trungChuyen);
             ArrayList<String> selectedList = new ArrayList<>(selectedSeats);
             intent.putStringArrayListExtra("selectedSeats", selectedList);
             intent.putExtra("userInfo", userInfo);
@@ -171,20 +185,16 @@ public class InforPaymentFragment extends Fragment {
 
         });
 
-
         return view;
     }
 
-    private void GetUserInfo(String userId) {
-        String baseUrl = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getInfo";
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
-        urlBuilder.addQueryParameter("userId", userId);
-
-        String url = urlBuilder.build().toString();
+    private void GetUserInfo(Integer userId, String token) {
+        String baseUrl = Config.BASE_URL+ "/users/get-info/" + userId;
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url(url)
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
                 .get()
                 .build();
 
@@ -203,20 +213,16 @@ public class InforPaymentFragment extends Fragment {
                     String responseBody = response.body().string();
 
                     try {
-                        JSONArray jsonArray = new JSONArray(responseBody);
+                        JSONObject obj = new JSONObject(responseBody);
 
-                        if (jsonArray.length() > 0) {
-                            JSONObject obj = jsonArray.getJSONObject(0);
+                        String fullname = obj.getString("fullname");
+                        String phone = obj.getString("phone_number");
+                        String email = obj.getString("email");
 
-                            String userId = obj.getString("userId");
-                            String fullname = obj.getString("fullname");
-                            String phone = obj.getString("phone");
-                            String email = obj.getString("email");
+                        userInfo = new UserInfoResponse(fullname, phone, email);
 
-                            userInfo = new UserInfoResponse(userId,fullname, phone, email);
+                        requireActivity().runOnUiThread(() -> updateDisplay(userInfo));
 
-                            requireActivity().runOnUiThread(() -> updateDisplay(userInfo));
-                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -257,62 +263,67 @@ public class InforPaymentFragment extends Fragment {
             String newPhone = edtPhone.getText().toString().trim();
             String newEmail = edtEmail.getText().toString().trim();
 
-            // Gửi lên server
-            updateUserInfoToServer(userId.toString(), newFullname, newPhone, newEmail);
+            fullName.setText(newFullname);
+            phone.setText(newPhone);
+            email.setText(newEmail);
+
+            userInfo.setFullname(newFullname);
+            userInfo.setPhone(newPhone);
+            userInfo.setEmail(newEmail);
 
             dialog.dismiss();
         });
     }
 
-    private void updateUserInfoToServer(String userId, String fullname, String phone, String email) {
-        String url = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getInfo/" + userId;
-
-        OkHttpClient client = new OkHttpClient();
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("fullname", fullname);
-            json.put("phone", phone);
-            json.put("email", email);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        RequestBody body = RequestBody.create(
-                json.toString(),
-                MediaType.get("application/json")
-
-        );
-
-        Request request = new Request.Builder()
-                .url(url)
-                .put(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show()
-                );
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-                            GetUserInfo(userId);
-                    });
-                } else {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Lỗi server", Toast.LENGTH_SHORT).show()
-                    );
-                }
-            }
-        });
-    }
+//    private void updateUserInfoToServer(String userId, String fullname, String phone, String email) {
+//        String url = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getInfo/" + userId;
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        JSONObject json = new JSONObject();
+//        try {
+//            json.put("fullname", fullname);
+//            json.put("phone", phone);
+//            json.put("email", email);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        RequestBody body = RequestBody.create(
+//                json.toString(),
+//                MediaType.get("application/json")
+//
+//        );
+//
+//        Request request = new Request.Builder()
+//                .url(url)
+//                .put(body)
+//                .build();
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                e.printStackTrace();
+//                requireActivity().runOnUiThread(() ->
+//                        Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show()
+//                );
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                if (response.isSuccessful()) {
+//                    requireActivity().runOnUiThread(() -> {
+//                            Toast.makeText(getContext(), "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+//                            GetUserInfo(userId);
+//                    });
+//                } else {
+//                    requireActivity().runOnUiThread(() ->
+//                            Toast.makeText(getContext(), "Lỗi server", Toast.LENGTH_SHORT).show()
+//                    );
+//                }
+//            }
+//        });
+//    }
 
 
 

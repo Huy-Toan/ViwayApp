@@ -83,11 +83,10 @@ public class EnterPassActivity extends AppCompatActivity {
             finish();
         });
 
-
     }
 
     private void sendInfo (String phone, String passWord) {
-        String url = "http://192.168.1.94:8080/api/v1/users/login";
+        String url = "http://192.168.1.11:8080/api/v1/users/login";
         OkHttpClient client = new OkHttpClient();
 
         JSONObject data = new JSONObject();

@@ -51,6 +51,7 @@
                 android:id="@+id/phone_EditPhone"
                 android:layout_width="300dp"
                 android:layout_height="40dp"
+                android:textColor="@color/black"
                 android:hint="Nhập số điện thoại" />
         </LinearLayout>
 
@@ -62,6 +63,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="100dp"
             android:text="Tiếp tục"
+            android:textColor="#FFFFFF"
             android:textSize="20sp" />
     </LinearLayout>
 

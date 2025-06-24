@@ -6,17 +6,14 @@ import java.io.Serializable;
 
 public class UserInfoResponse implements Serializable {
 
-    @SerializedName("userId")
-    private String userId;
     @SerializedName("fullname")
     private String fullname;
-    @SerializedName("phone")
+    @SerializedName("phone_number")
     private String phone;
     @SerializedName("email")
     private String email;
 
-    public UserInfoResponse(String userId,String fullname,String phone, String email){
-        this.userId = userId;
+    public UserInfoResponse(String fullname,String phone, String email){
         this.fullname = fullname;
         this.phone = phone;
         this.email = email;
@@ -27,13 +24,6 @@ public class UserInfoResponse implements Serializable {
     }
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public void setFullname(String fullname) {

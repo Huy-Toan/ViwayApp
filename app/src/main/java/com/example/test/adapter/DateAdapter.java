@@ -18,16 +18,19 @@ import java.util.Locale;
 
 public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder> {
 
+    private String token;
     private List<DateItem> dateItemList;
     private SimpleDateFormat dayOfWeekFormat;
     private SimpleDateFormat dateFormat;
     private OnDateClickListener onDateClickListener;
     private int selectedPosition = RecyclerView.NO_POSITION;
-    public DateAdapter(List<DateItem> dateItemList){
+    public DateAdapter(List<DateItem> dateItemList, String token) {
         this.dateItemList = dateItemList;
+        this.token = token;
         this.dayOfWeekFormat = new SimpleDateFormat("EEE", new Locale("vi", "VN"));
         this.dateFormat = new SimpleDateFormat("dd/MM", Locale.getDefault());
     }
+
 
     public static class DateViewHolder extends RecyclerView.ViewHolder {
         LinearLayout dateItemContainer;
@@ -121,7 +124,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder
                 notifyItemChanged(selectedPosition);
 
                 if (selectedPosition < dateItemList.size()) {
-                    onDateClickListener.onDateClick(dateItemList.get(selectedPosition));
+                    onDateClickListener.onDateClick(dateItemList.get(selectedPosition), token);
                 }
             }
         });
@@ -134,7 +137,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder
     }
 
     public interface OnDateClickListener {
-        void onDateClick(DateItem dateItem);
+        void onDateClick(DateItem dateItem, String token);
     }
 
     public void setOnDateClickListener(OnDateClickListener onDateClickListener) {

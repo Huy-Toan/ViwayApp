@@ -7,23 +7,23 @@ public class TicketResponse implements Serializable {
 
     @SerializedName("id")
     private Integer ticketId;
-    @SerializedName("timeStart")
+    @SerializedName("time_start")
     private String gioDi;
-    @SerializedName("timeEnd")
+    @SerializedName("time_end")
     private String gioDen;
     @SerializedName("price")
     private Integer giaVe;
-    @SerializedName("vehicleKind")
+    @SerializedName("vehicle_kind")
     private String loaiGhe;
-    @SerializedName("availableSeats")
+    @SerializedName("available_seats")
     private Integer soLuongGhe;
-    @SerializedName("startLocation")
+    @SerializedName("start_location")
     private String diemDi;
     @SerializedName("distance")
     private Integer khoangCach;
-    @SerializedName("estimatedDuration")
+    @SerializedName("estimated_duration")
     private String thoiGianDi;
-    @SerializedName("endLocation")
+    @SerializedName("end_location")
     private String diemDen;
 
     public TicketResponse(Integer ticketId,String gioDi, String gioDen, Integer giaVe, String loaiGhe, Integer soLuongGhe, String diemDi,Integer khoangCach,String thoiGianDi, String diemDen){

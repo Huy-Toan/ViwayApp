@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.test.R;
 import com.example.test.SheetPaymentBottom;
+import com.example.test.config.Config;
 import com.example.test.response.TicketResponse;
 import com.example.test.response.UserInfoResponse;
 
@@ -49,13 +51,15 @@ public class ConfirmInfoPaymentFragment extends Fragment {
                         thoiGianTrungChuyen, diemXuongXe, fullname, sdt, email, thoiGianGiuCho,
                         giaVe, phiThanhToan, tongThanhToan;
 
-    private Integer tongTien = 0, ticketId;
-    private String ngaydi, userId;
+    private Integer tongTien = 0, ticketId, userId, codeTicket;
+    private String ngaydi, token, diemDon;
+    private Boolean trungChuyen = false;
     private ImageButton btnBack;
     private Button btnThanhToan;
     private TicketResponse ticket;
     private UserInfoResponse userInfo;
     private ArrayList<String> selectedSeats;
+    private CountDownTimer countDownTimer;
 
     @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -89,6 +93,8 @@ public class ConfirmInfoPaymentFragment extends Fragment {
             ticket = (TicketResponse) bundle.getSerializable("ticket");
             userInfo = (UserInfoResponse) bundle.getSerializable("userInfo") ;
             selectedSeats = bundle.getStringArrayList("selectedSeats");
+            diemDon = bundle.getString("diemDon");
+            trungChuyen = bundle.getBoolean("trungChuyen", false);
 
             if (ticket != null && ngaydi != null && userInfo != null) {
                 ticketId = ticket.getTicketId();
@@ -108,17 +114,26 @@ public class ConfirmInfoPaymentFragment extends Fragment {
                 email.setText(userInfo.getEmail());
 
                 tongTien = selectedSeats.size() * ticket.getGiaVe();
+                giaVe.setText(tongTien.toString());
+                phiThanhToan.setText("0đ");
+                tongThanhToan.setText(tongTien.toString());
             }
 
-            Log.d("SelectedSeatFragment", "TicketID: " + ticketId);
+            Log.d("Điểm đón", diemDon);
         }
 
+
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
-        userId = sharedPreferences.getString("userId", null);
+        userId = sharedPreferences.getInt("userId", 0);
+        token = sharedPreferences.getString("token", "");
+
+        sendBookingInfoToServer(token);
+        startCountdownTimer();
+
 
         btnThanhToan.setOnClickListener(v -> {
             SheetPaymentBottom sheetPaymentBottom = new SheetPaymentBottom(method -> {
-                sendBookingToServer(method);
+                sendBookingToServer(method, token);
             });
 
             sheetPaymentBottom.show(getParentFragmentManager(), "PaymentSheet");
@@ -133,30 +148,85 @@ public class ConfirmInfoPaymentFragment extends Fragment {
     }
 
 
-    private void sendBookingToServer(String method) {
-        String baseUrl = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getInfo";
-
-        String total = tongTien.toString();
+    private void sendBookingInfoToServer(String token) {
+        String baseUrl = Config.BASE_URL+ "/ticket";
 
         OkHttpClient client = new OkHttpClient();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
-        urlBuilder.addQueryParameter("userId", userId);
-        urlBuilder.addQueryParameter("tongTien", total);
-
-        String url = urlBuilder.build().toString();
 
         JSONObject data = new JSONObject();
         try {
-            data.put("userId", userId);
-            data.put("ticketId", ticketId);
-            data.put("userName", userInfo.getFullname());
-            data.put("phone", userInfo.getPhone());
+            data.put("trip_id", ticketId);
+            data.put("user_id", userId);
+            data.put("full_name", userInfo.getFullname());
+            data.put("phone_number", userInfo.getPhone());
             data.put("email", userInfo.getEmail());
-            data.put("selectedSeats", new JSONArray(selectedSeats));
-            data.put("paymentMethod", method);
-            data.put("departureDate", ngaydi);
-            data.put("totalPrice", total);
+            data.put("seat_code", new JSONArray(selectedSeats));
+            data.put("pick_up_point", diemDon);
+            data.put("require_shuttle", trungChuyen);
 
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        RequestBody requestBody = RequestBody.create(
+                data.toString(),
+                MediaType.parse("application/json")
+        );
+
+
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                try {
+                    String body = response.body().string();
+
+                    requireActivity().runOnUiThread(() -> {
+                        if (response.isSuccessful()) {
+                            try {
+                                JSONObject result = new JSONObject(body);
+                                int idResponse = result.getInt("id");
+                                codeTicket = idResponse;
+                            } catch (JSONException e) {
+                                Toast.makeText(getContext(), "Lỗi JSON từ server", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Lỗi từ server!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            }
+
+        });
+    }
+
+    private void sendBookingToServer(String method, String token) {
+        String url = Config.BASE_URL + "/ticket/payment";
+
+        OkHttpClient client = new OkHttpClient();
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("ticket_id", codeTicket);
+            data.put("payment_method", method);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
@@ -169,6 +239,7 @@ public class ConfirmInfoPaymentFragment extends Fragment {
 
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("Authorization", "Bearer " + token)
                 .post(requestBody)
                 .build();
 
@@ -176,36 +247,58 @@ public class ConfirmInfoPaymentFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(getContext(), "Gửi phương thức thất bại", Toast.LENGTH_SHORT).show()
                 );
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String body = response.body().string();
+
                 requireActivity().runOnUiThread(() -> {
                     if (response.isSuccessful()) {
                         try {
                             JSONObject result = new JSONObject(body);
                             String paymentUrl = result.getString("paymentUrl");
-
                             openPaymentGateway(paymentUrl);
-
                         } catch (JSONException e) {
-                            Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Lỗi JSON từ server", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(getContext(), "Lỗi từ server!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Thanh toán thất bại!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
-
         });
     }
+
 
     private void openPaymentGateway(String paymentUrl) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl));
         startActivity(intent);
     }
+
+    private void startCountdownTimer() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+
+        countDownTimer = new CountDownTimer(600000, 1000) { // 600000 ms = 10 phút
+            public void onTick(long millisUntilFinished) {
+                long minutes = (millisUntilFinished / 1000) / 60;
+                long seconds = (millisUntilFinished / 1000) % 60;
+                String time = String.format("%02d:%02d", minutes, seconds);
+                thoiGianGiuCho.setText("Thời gian giữ vé còn lại: "+ time);
+            }
+
+            @Override
+            public void onFinish() {
+                thoiGianGiuCho.setText("Thời gian giu vé còn lại: 00:00");
+            }
+        };
+
+        countDownTimer.start();
+    }
+
 
 }

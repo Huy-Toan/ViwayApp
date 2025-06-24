@@ -1,7 +1,10 @@
 package com.example.test.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -23,6 +26,7 @@ import com.example.test.InforPaymentActivity;
 import com.example.test.R;
 import com.example.test.SelectedSeatActivity;
 import com.example.test.TicketTripActivity;
+import com.example.test.config.Config;
 import com.example.test.response.SeatStatusResponse;
 import com.example.test.response.TicketResponse;
 
@@ -55,7 +59,7 @@ public class SelectedSeatFragment extends Fragment {
     private Button btnA1,btnA2,btnA3,btnA4,btnA5,btnA6,btnA7,btnA8,btnA9,btnA10,btnA11,btnA12,btnA13,btnA15,btnA16,btnA17;
     private Button btnB1,btnB2,btnB3,btnB4,btnB5,btnB6,btnB7,btnB8,btnB9,btnB10,btnB11,btnB12,btnB13,btnB14,btnB15,btnB16,btnB17;
     private Integer giaVe = 0, tongTien = 0, ticketId;
-    private String ngaydi;
+    private String ngaydi, token;
     private TicketResponse ticket;
     Map<String, Button> seatButtonsMap = new HashMap<>();
     Set<String> selectedSeats = new HashSet<>();
@@ -112,6 +116,9 @@ public class SelectedSeatFragment extends Fragment {
         btnB16 = view.findViewById(R.id.btnB16);
         btnB17 = view.findViewById(R.id.btnB17);
 
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("VIWAY", MODE_PRIVATE);
+        token = sharedPreferences.getString("token", "");
+
         initSeatButtonsMap();
 
         Bundle bundle = getArguments();
@@ -132,7 +139,7 @@ public class SelectedSeatFragment extends Fragment {
             Log.d("SelectedSeatFragment", "TicketID: " + ticketId);
         }
 
-        fetchSeatStatus(ticketId.toString());
+        fetchSeatStatus(ticketId,token);
 
         btnBack.setOnClickListener(v -> {
             getActivity().finish();
@@ -150,12 +157,13 @@ public class SelectedSeatFragment extends Fragment {
      return view;
     }
 
-    private void fetchSeatStatus (String ticketId) {
-        String url = "https://6851a3e58612b47a2c0ad35e.mockapi.io/getStatus";
+    private void fetchSeatStatus (Integer ticketId, String token) {
+        String url = Config.BASE_URL+"/trip/seat-trip/"+ ticketId;
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("Authorization", "Bearer "+ token)
                 .get()
                 .build();
 
@@ -174,24 +182,19 @@ public class SelectedSeatFragment extends Fragment {
                     String responseBody = response.body().string();
                     try {
                         JSONArray jsonArray = new JSONArray(responseBody);
-                        if (jsonArray.length() > 0) {
-                            JSONObject ticketObj = jsonArray.getJSONObject(0);
-                            JSONArray seatsArray = ticketObj.getJSONArray("Seats");
-
-                            List<SeatStatusResponse> seatStatusList = new ArrayList<>();
-
-                            for (int i = 0; i < seatsArray.length(); i++) {
-                                JSONObject seatObj = seatsArray.getJSONObject(i);
-                                String seatId = seatObj.getString("SeatID");
-                                String status = seatObj.getString("Status");
-
-                                seatStatusList.add(new SeatStatusResponse(seatId, status));
-                            }
-
-                            requireActivity().runOnUiThread(() -> {
-                                updateSeatButtons(seatStatusList);
-                            });
+                        Set<String> bookedSeats = new HashSet<>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            bookedSeats.add(jsonArray.getString(i));
                         }
+
+                        List<SeatStatusResponse> seatStatusList = new ArrayList<>();
+                        for (String seatId : seatButtonsMap.keySet()) {
+                            String status = bookedSeats.contains(seatId) ? "booked" : "available";
+                            seatStatusList.add(new SeatStatusResponse(seatId, status));
+                        }
+
+                        requireActivity().runOnUiThread(() -> updateSeatButtons(seatStatusList));
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -201,6 +204,7 @@ public class SelectedSeatFragment extends Fragment {
                     );
                 }
             }
+
 
         });
     }
@@ -242,15 +246,15 @@ public class SelectedSeatFragment extends Fragment {
     }
 
     private void initSeatButtonsMap() {
-        seatButtonsMap.put("A01", btnA1);
-        seatButtonsMap.put("A02", btnA2);
-        seatButtonsMap.put("A03", btnA3);
-        seatButtonsMap.put("A04", btnA4);
-        seatButtonsMap.put("A05", btnA5);
-        seatButtonsMap.put("A06", btnA6);
-        seatButtonsMap.put("A07", btnA7);
-        seatButtonsMap.put("A08", btnA8);
-        seatButtonsMap.put("A09", btnA9);
+        seatButtonsMap.put("A1", btnA1);
+        seatButtonsMap.put("A2", btnA2);
+        seatButtonsMap.put("A3", btnA3);
+        seatButtonsMap.put("A4", btnA4);
+        seatButtonsMap.put("A5", btnA5);
+        seatButtonsMap.put("A6", btnA6);
+        seatButtonsMap.put("A7", btnA7);
+        seatButtonsMap.put("A8", btnA8);
+        seatButtonsMap.put("A9", btnA9);
         seatButtonsMap.put("A10", btnA10);
         seatButtonsMap.put("A11", btnA11);
         seatButtonsMap.put("A12", btnA12);
@@ -259,15 +263,15 @@ public class SelectedSeatFragment extends Fragment {
         seatButtonsMap.put("A16", btnA16);
         seatButtonsMap.put("A17", btnA17);
 
-        seatButtonsMap.put("B01", btnB1);
-        seatButtonsMap.put("B02", btnB2);
-        seatButtonsMap.put("B03", btnB3);
-        seatButtonsMap.put("B04", btnB4);
-        seatButtonsMap.put("B05", btnB5);
-        seatButtonsMap.put("B06", btnB6);
-        seatButtonsMap.put("B07", btnB7);
-        seatButtonsMap.put("B08", btnB8);
-        seatButtonsMap.put("B09", btnB9);
+        seatButtonsMap.put("B1", btnB1);
+        seatButtonsMap.put("B2", btnB2);
+        seatButtonsMap.put("B3", btnB3);
+        seatButtonsMap.put("B4", btnB4);
+        seatButtonsMap.put("B5", btnB5);
+        seatButtonsMap.put("B6", btnB6);
+        seatButtonsMap.put("B7", btnB7);
+        seatButtonsMap.put("B8", btnB8);
+        seatButtonsMap.put("B9", btnB9);
         seatButtonsMap.put("B10", btnB10);
         seatButtonsMap.put("B11", btnB11);
         seatButtonsMap.put("B12", btnB12);
