@@ -19,7 +19,7 @@
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_gravity="center"
-            android:layout_marginTop="240dp"
+            android:layout_marginTop="210dp"
             android:background="@drawable/inputphone" />
 
         <TextView
@@ -51,7 +51,7 @@
                 android:id="@+id/phone_EditPhone"
                 android:layout_width="300dp"
                 android:layout_height="40dp"
-                android:textColor="@color/black"
+                android:textColor="#000000"
                 android:hint="Nhập số điện thoại hoặc email" />
         </LinearLayout>
 

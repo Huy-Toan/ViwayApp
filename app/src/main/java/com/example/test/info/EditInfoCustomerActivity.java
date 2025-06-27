@@ -1,18 +1,10 @@
 package com.example.test.info;
 
-import static java.security.AccessController.getContext;
-
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -27,17 +19,13 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.R;
 import com.example.test.config.Config;
-import com.example.test.login_logout.InputPhoneActivity;
 import com.example.test.response.InfoCustomerResponse;
-import com.example.test.support.DanhMucHoTroActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.json.JSONException;
@@ -203,10 +191,7 @@ public class EditInfoCustomerActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     runOnUiThread(() -> {
-                        Toast.makeText(EditInfoCustomerActivity.this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show();
-                        Intent it = new Intent(EditInfoCustomerActivity.this, InfoCustumerActivity.class);
-                        startActivity(it);
-                        finish();
+                        showNotifyUpdateSuccess();
                     });
                 } else {
                     int statusCode = response.code();
@@ -264,6 +249,26 @@ public class EditInfoCustomerActivity extends AppCompatActivity {
             finish();
             dialog.dismiss();
         });
+    }
+
+    public void showNotifyUpdateSuccess() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditInfoCustomerActivity.this);
+        View view = LayoutInflater.from(EditInfoCustomerActivity.this).inflate(R.layout.dialog_create_account_successfull, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+
+        Button btnNo = view.findViewById(R.id.CreateAccountSuccess_btnDong);
+
+        btnNo.setOnClickListener(v -> {
+            Intent it = new Intent(EditInfoCustomerActivity.this, InfoCustumerActivity.class);
+            startActivity(it);
+            dialog.dismiss();
+            finish();
+
+        });
+
     }
 
 

@@ -78,10 +78,10 @@ public class CustomSpinner extends ArrayAdapter<String> {
         } else  {
             if (showSelectedText) {
                 textView.setText(items.get(selectedIndex));
-                icon.setVisibility(View.VISIBLE);
+                icon.setVisibility(View.GONE);
             } else {
                 textView.setText(displayText);
-                icon.setVisibility(View.GONE);
+                icon.setVisibility(View.VISIBLE);
             }
         }
 

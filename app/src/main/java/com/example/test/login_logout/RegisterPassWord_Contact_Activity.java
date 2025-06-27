@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -23,10 +22,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.test.MainActivity;
 import com.example.test.R;
 import com.example.test.config.Config;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +38,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class CreatePassWordActivity extends AppCompatActivity {
+public class RegisterPassWord_Contact_Activity extends AppCompatActivity {
 
     private TextView chuThuong, chuHoa, kiTuDacBiet, so;
     private ImageButton btnBack;
@@ -174,7 +171,7 @@ public class CreatePassWordActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() ->
-                        Toast.makeText(CreatePassWordActivity.this, "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(RegisterPassWord_Contact_Activity.this, "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
             }
 
@@ -184,7 +181,7 @@ public class CreatePassWordActivity extends AppCompatActivity {
                     runOnUiThread(() -> showNotifyCreateSuccessfull());
                 } else {
                     runOnUiThread(() -> {
-                        Toast.makeText(CreatePassWordActivity.this, "Tạo tài khoản thất bại", Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegisterPassWord_Contact_Activity.this, "Tạo tài khoản thất bại", Toast.LENGTH_LONG).show();
                     });
                 }
             }
@@ -200,8 +197,8 @@ public class CreatePassWordActivity extends AppCompatActivity {
     }
 
     public void showNotifyCreateSuccessfull() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(CreatePassWordActivity.this);
-        View view = LayoutInflater.from(CreatePassWordActivity.this).inflate(R.layout.dialog_create_account_successfull, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(RegisterPassWord_Contact_Activity.this);
+        View view = LayoutInflater.from(RegisterPassWord_Contact_Activity.this).inflate(R.layout.dialog_create_account_successfull, null);
         builder.setView(view);
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -210,7 +207,7 @@ public class CreatePassWordActivity extends AppCompatActivity {
         Button btnNo = view.findViewById(R.id.CreateAccountSuccess_btnDong);
 
         btnNo.setOnClickListener(v -> {
-            Intent it = new Intent(CreatePassWordActivity.this, InputPhoneActivity.class);
+            Intent it = new Intent(RegisterPassWord_Contact_Activity.this, InputPhoneActivity.class);
             startActivity(it);
             dialog.dismiss();
             finish();

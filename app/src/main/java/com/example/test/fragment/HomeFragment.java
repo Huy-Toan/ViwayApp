@@ -9,13 +9,11 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.DatePicker;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,11 +34,9 @@ import java.util.ArrayList;
 
 import com.example.test.CustomSpinner;
 import com.example.test.R;
-import com.example.test.TicketTripActivity;
+import com.example.test.ticket.TicketTripActivity;
 import com.example.test.item.SliderItem;
 import com.example.test.adapter.SliderAdapter;
-
-import org.w3c.dom.Text;
 
 public class HomeFragment extends Fragment {
     private ViewPager2 viewPager2;

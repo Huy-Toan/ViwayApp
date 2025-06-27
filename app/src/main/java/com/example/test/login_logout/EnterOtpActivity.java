@@ -2,7 +2,6 @@ package com.example.test.login_logout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -18,7 +17,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.test.MainActivity;
 import com.example.test.R;
 import com.example.test.config.Config;
 
@@ -134,7 +132,7 @@ public class EnterOtpActivity extends AppCompatActivity {
                     Log.d("Verify", json.toString());
                     runOnUiThread(() -> {
                         if (verify) {
-                            Intent intent = new Intent(EnterOtpActivity.this, EnterNameActivity.class);
+                            Intent intent = new Intent(EnterOtpActivity.this, RegisterNameActivity.class);
                             intent.putExtra("contact", contact);
                             startActivity(intent);
                             finish();

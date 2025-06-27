@@ -28,9 +28,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.test.CustomSpinner;
-import com.example.test.MainActivity;
 import com.example.test.R;
-import com.example.test.SelectedSeatActivity;
+import com.example.test.ticket.SelectedSeatActivity;
 import com.example.test.adapter.DateAdapter;
 import com.example.test.adapter.TicketAdapter;
 import com.example.test.config.Config;

@@ -22,7 +22,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.test.InforPaymentActivity;
+import com.example.test.ticket.InforPaymentActivity;
 import com.example.test.R;
 import com.example.test.config.Config;
 import com.example.test.response.SeatStatusResponse;

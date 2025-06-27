@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:id="@+id/select_seat"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -679,6 +680,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
+        android:background="@color/white"
         app:layout_constraintTop_toTopOf="@id/chonGhe_guideLuaChonGhe"
         app:layout_constraintBottom_toBottomOf="@+id/chonGhe_guideTiepTuc"
         app:layout_constraintStart_toStartOf="parent"
@@ -730,6 +732,7 @@
             android:layout_height="match_parent"
             android:text="Tiếp tục"
             android:textSize="20sp"
+            android:textColor="@color/white"
             android:backgroundTint="#FF0000"/>
     </LinearLayout>
 

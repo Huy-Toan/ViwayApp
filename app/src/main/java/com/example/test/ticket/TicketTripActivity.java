@@ -1,4 +1,4 @@
-package com.example.test;
+package com.example.test.ticket;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.test.R;
 import com.example.test.fragment.TicketTripFragment;
 
 public class TicketTripActivity extends AppCompatActivity {

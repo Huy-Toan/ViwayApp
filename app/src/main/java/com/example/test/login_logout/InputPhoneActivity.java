@@ -25,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -119,7 +118,7 @@ public class InputPhoneActivity extends AppCompatActivity {
                             int userId = jsob.optInt("userId");
                             String fullName = jsob.optString("fullName");
 
-                            Intent intent = new Intent(InputPhoneActivity.this, EnterPassActivity.class);
+                            Intent intent = new Intent(InputPhoneActivity.this, LoginEnterPassActivity.class);
                             intent.putExtra("contact", contact);
                             intent.putExtra("userId", userId);
                             intent.putExtra("fullName", fullName);

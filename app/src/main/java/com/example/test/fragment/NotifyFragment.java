@@ -1,27 +1,46 @@
 package com.example.test.fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.example.test.config.Config;
 import com.example.test.response.NotifyResponse;
 import com.example.test.R;
 import com.example.test.adapter.NotifyAdapter;
+import com.example.test.response.TicketHistoryResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class NotifyFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private NotifyAdapter adapterNotify;
     private List<NotifyResponse> notifyResponseList;
+    private String token;
+    private Integer userId;
 
     @Nullable
     @Override
@@ -31,36 +50,77 @@ public class NotifyFragment extends Fragment {
         recyclerView = view.findViewById(R.id.item_Notify);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        notifyResponseList = new ArrayList<>();
-        notifyResponseList.add(new NotifyResponse(
-                "Thông báo 1",
-                "09:00 01/06/2025",
-                "Xe sẽ khởi hành đúng giờ, vui lòng có mặt trước 15 phút."
-        ));
-        notifyResponseList.add(new NotifyResponse(
-                "Thông báo 2",
-                "10:30 01/06/2025",
-                "Chuyến xe đi Tây Sơn đã sẵn sàng."
-        ));
-        notifyResponseList.add(new NotifyResponse(
-                "Thông báo 3",
-                "11:00 01/06/2025",
-                "Chuyến xe đã bị hoãn do điều kiện thời tiết."
-        ));
-        notifyResponseList.add(new NotifyResponse(
-                "Thông báo 4",
-                "13:45 01/06/2025",
-                "Đừng quên mang theo vé điện tử khi lên xe."
-        ));
-        notifyResponseList.add(new NotifyResponse(
-                "Thông báo 5",
-                "15:15 01/06/2025",
-                "Hệ thống đã cập nhật tuyến đường mới."
-        ));
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getInt("userId", 0);
+        token = sharedPreferences.getString("token", "");
 
+        requestNotifi(userId, token);
+        notifyResponseList = new ArrayList<>();
         adapterNotify = new NotifyAdapter(notifyResponseList);
         recyclerView.setAdapter(adapterNotify);
 
         return view;
     }
+
+    private void requestNotifi(Integer userId, String token) {
+        String baseUrl = Config.BASE_URL+"/notifications/user/"+ userId;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        List<NotifyResponse> newNotifyList = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+
+                            NotifyResponse ticket = new NotifyResponse(
+                                    obj.optString("title", "Trống"),
+                                    obj.optString("sent_time", "Trống"),
+                                    obj.optString("content", "Trống")
+                            );
+                            newNotifyList.add(ticket);
+                        }
+
+                        requireActivity().runOnUiThread(() -> {
+                            notifyResponseList.clear();
+                            Collections.reverse(newNotifyList);
+                            notifyResponseList.addAll(newNotifyList);
+                            adapterNotify.notifyDataSetChanged();
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(getContext(), "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+                } else {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
+    }
+
+
 }
+

@@ -18,18 +18,18 @@
         android:theme="@style/Theme.Test"
         tools:targetApi="31">
 
-<!--    .......................Activity............................    -->
+<!--    .......................Ticket............................    -->
         <activity
-            android:name=".SelectedSeatActivity"
+            android:name=".ticket.SelectedSeatActivity"
             android:exported="false" />
         <activity
-            android:name=".InforPaymentActivity"
+            android:name=".ticket.InforPaymentActivity"
             android:exported="false" />
         <activity
-            android:name=".ConfirmInfoPaymentActivity"
+            android:name=".ticket.ConfirmInfoPaymentActivity"
             android:exported="false" />
-        <activity android:name=".TicketTripActivity" />
-        <activity android:name=".DetailHistoryActivity" />
+        <activity android:name=".ticket.TicketTripActivity" />
+        <activity android:name=".ticket.DetailHistoryActivity" />
 
 <!--    ...................... Info................................ -->
 
@@ -47,19 +47,16 @@
             android:name=".login_logout.EnterOtpActivity"
             android:exported="false" />
         <activity
-            android:name=".login_logout.EnterPassActivity"
+            android:name=".login_logout.LoginEnterPassActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".login_logout.RegisterNameActivity"
             android:exported="false" />
 
         <activity
-            android:name=".login_logout.RegisterActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".login_logout.EnterNameActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".login_logout.CreatePassWordActivity"
+            android:name=".login_logout.RegisterPassWord_Contact_Activity"
             android:exported="false" />
 
 
@@ -90,15 +87,20 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
 
         <activity
             android:name=".login_logout.InputPhoneActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

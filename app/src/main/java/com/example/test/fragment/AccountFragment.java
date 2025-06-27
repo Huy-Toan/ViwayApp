@@ -271,10 +271,10 @@ public class AccountFragment extends Fragment {
 
 
     private String getSafeString(JSONObject obj, String key) {
-        if (obj.isNull(key)) return "Trống";
-        String value = obj.optString(key, "Trống");
+        if (obj.isNull(key)) return "Chưa cập nhật";
+        String value = obj.optString(key, "Chưa cập nhật");
         if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("null")) {
-            return "Trống";
+            return "Chưa cập nhật";
         }
         return value;
     }

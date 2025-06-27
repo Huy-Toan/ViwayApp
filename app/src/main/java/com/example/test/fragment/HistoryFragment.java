@@ -16,28 +16,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-import com.example.test.DetailHistoryActivity;
+import com.example.test.ticket.DetailHistoryActivity;
 import com.example.test.R;
-import com.example.test.SelectedSeatActivity;
 import com.example.test.config.Config;
 import com.example.test.response.TicketHistoryResponse;
 import com.example.test.adapter.TicketHistoryAdapter;
-import com.example.test.response.TicketResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import okhttp3.Call;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class HistoryFragment extends Fragment {
@@ -122,6 +117,7 @@ public class HistoryFragment extends Fragment {
 
                         requireActivity().runOnUiThread(() -> {
                             ticketHistoryList.clear();
+                            Collections.reverse(newTicketList);
                             ticketHistoryList.addAll(newTicketList);
                             ticketHistoryAdapter.notifyDataSetChanged();
                         });

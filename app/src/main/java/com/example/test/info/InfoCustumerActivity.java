@@ -1,6 +1,7 @@
 package com.example.test.info;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.R;
 import com.example.test.config.Config;
+import com.example.test.login_logout.InputPhoneActivity;
 import com.example.test.response.InfoCustomerResponse;
 import com.example.test.response.UserInfoResponse;
 
@@ -32,6 +34,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class InfoCustumerActivity extends AppCompatActivity {
@@ -74,7 +77,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
         });
 
         btnLogout.setOnClickListener(v -> {
-            requestLogout(token, userId);
+            requestLogout(token);
         });
 
         btnUpdateInfo.setOnClickListener(v -> {
@@ -146,14 +149,14 @@ public class InfoCustumerActivity extends AppCompatActivity {
         dateOfBirth.setText(infoCustomer.getDateOfBirth());
     }
 
-    private void requestLogout (String token, Integer userId) {
-        String baseUrl = Config.BASE_URL+ "/users/get-info/" + userId;
+    private void requestLogout (String token) {
+        String baseUrl = Config.BASE_URL+ "/users/logout";
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(baseUrl)
                 .addHeader("Authorization", "Bearer "+ token)
-                .get()
+                .post(RequestBody.create(new byte[0]))
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -168,9 +171,17 @@ public class InfoCustumerActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    runOnUiThread(() ->
-                            Toast.makeText(InfoCustumerActivity.this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show()
-                    );
+                    runOnUiThread(() -> {
+                        Toast.makeText(InfoCustumerActivity.this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+                        getSharedPreferences("VIWAY", Context.MODE_PRIVATE)
+                                .edit()
+                                .clear()
+                                .apply();
+
+                        Intent it = new Intent(InfoCustumerActivity.this, InputPhoneActivity.class);
+                        startActivity(it);
+                        finish();
+                    });
                 } else {
                     runOnUiThread(() ->
                             Toast.makeText(InfoCustumerActivity.this, "Đăng xuất thất bại", Toast.LENGTH_SHORT).show()
@@ -181,10 +192,10 @@ public class InfoCustumerActivity extends AppCompatActivity {
     }
 
     private String getSafeString(JSONObject obj, String key) {
-        if (obj.isNull(key)) return "Trống";
-        String value = obj.optString(key, "Trống");
+        if (obj.isNull(key)) return "Chưa cập nhật";
+        String value = obj.optString(key, "Chưa cập nhật");
         if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("null")) {
-            return "Trống";
+            return "Chưa cập nhật";
         }
         return value;
     }

@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.R;
 
-public class EnterNameActivity extends AppCompatActivity {
+public class RegisterNameActivity extends AppCompatActivity {
 
     private EditText edName;
     private Button btnNext;
@@ -39,7 +39,7 @@ public class EnterNameActivity extends AppCompatActivity {
 
         btnNext.setOnClickListener(v -> {
             username = edName.getText().toString();
-            Intent it = new Intent(EnterNameActivity.this, CreatePassWordActivity.class);
+            Intent it = new Intent(RegisterNameActivity.this, RegisterPassWord_Contact_Activity.class);
             it.putExtra("contact", contact);
             it.putExtra("username", username);
             startActivity(it);

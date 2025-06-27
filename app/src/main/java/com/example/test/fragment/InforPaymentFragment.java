@@ -22,7 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.test.ConfirmInfoPaymentActivity;
+import com.example.test.ticket.ConfirmInfoPaymentActivity;
 import com.example.test.R;
 import com.example.test.config.Config;
 import com.example.test.response.TicketResponse;

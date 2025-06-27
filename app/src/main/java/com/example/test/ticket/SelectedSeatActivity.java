@@ -1,4 +1,4 @@
-package com.example.test;
+package com.example.test.ticket;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.test.R;
 import com.example.test.fragment.SelectedSeatFragment;
 import com.example.test.response.TicketResponse;
 

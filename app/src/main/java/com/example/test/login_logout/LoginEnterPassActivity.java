@@ -21,15 +21,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.test.MainActivity;
 import com.example.test.R;
 import com.example.test.config.Config;
-import com.example.test.response.TicketResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -39,7 +35,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class EnterPassActivity extends AppCompatActivity {
+public class LoginEnterPassActivity extends AppCompatActivity {
 
     private Button btnDangNhap;
     private ImageButton btnBack;
@@ -80,6 +76,12 @@ public class EnterPassActivity extends AppCompatActivity {
             sendInfo(contact, passWord);
         });
 
+        khongPhaiToi.setOnClickListener(v -> {
+            Intent it = new Intent(LoginEnterPassActivity.this, InputPhoneActivity.class);
+            startActivity(it);
+            finish();
+        });
+
         btnBack.setOnClickListener(v -> {
             finish();
         });
@@ -116,7 +118,7 @@ public class EnterPassActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e("sendPhone", "Lỗi gửi request: " + e.getMessage(), e);
                 runOnUiThread(() ->
-                        Toast.makeText(EnterPassActivity.this, "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(LoginEnterPassActivity.this, "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
             }
 
@@ -129,7 +131,7 @@ public class EnterPassActivity extends AppCompatActivity {
                     if (!response.isSuccessful() || json.has("message")) {
                         String message = json.optString("message", "Đăng nhập thất bại");
                         runOnUiThread(() ->
-                                Toast.makeText(EnterPassActivity.this, message, Toast.LENGTH_LONG).show()
+                                Toast.makeText(LoginEnterPassActivity.this, message, Toast.LENGTH_LONG).show()
                         );
                         return;
                     }
@@ -151,7 +153,7 @@ public class EnterPassActivity extends AppCompatActivity {
 
                     // Chuyển sang màn hình chính sau khi đăng nhập
                     runOnUiThread(() -> {
-                        Intent intent = new Intent(EnterPassActivity.this, MainActivity.class);
+                        Intent intent = new Intent(LoginEnterPassActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     });
@@ -159,7 +161,7 @@ public class EnterPassActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                     runOnUiThread(() ->
-                            Toast.makeText(EnterPassActivity.this, "Lỗi phản hồi JSON", Toast.LENGTH_LONG).show()
+                            Toast.makeText(LoginEnterPassActivity.this, "Lỗi phản hồi JSON", Toast.LENGTH_LONG).show()
                     );
                 }
             }

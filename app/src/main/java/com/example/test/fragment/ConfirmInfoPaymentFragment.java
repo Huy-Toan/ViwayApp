@@ -32,7 +32,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -113,9 +115,13 @@ public class ConfirmInfoPaymentFragment extends Fragment {
                 email.setText(userInfo.getEmail());
 
                 tongTien = selectedSeats.size() * ticket.getGiaVe();
-                giaVe.setText(tongTien.toString());
+
+                NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+                String giaVeFormatted = formatter.format(tongTien) + " VNĐ";
+
+                giaVe.setText(giaVeFormatted);
                 phiThanhToan.setText("0đ");
-                tongThanhToan.setText(tongTien.toString());
+                tongThanhToan.setText(giaVeFormatted);
             }
 
             Log.d("Điểm đón", diemDon);

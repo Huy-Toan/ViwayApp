@@ -1,4 +1,4 @@
-package com.example.test;
+package com.example.test.ticket;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,12 +24,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.test.R;
 import com.example.test.config.Config;
-import com.example.test.info.InfoCustumerActivity;
 import com.example.test.response.DetailHistoryTicketResponse;
-import com.example.test.response.InfoCustomerResponse;
 import com.example.test.response.TicketHistoryResponse;
-import com.example.test.response.TicketResponse;
 import com.example.test.support.DanhMucHoTroActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -173,7 +171,16 @@ public class DetailHistoryActivity extends AppCompatActivity {
         fullname.setText(ticketResponse.getFullname());
         phone.setText(ticketResponse.getPhone());
         email.setText(ticketResponse.getEmail());
-        trangThai.setText(ticketResponse.getStatus());
+
+        String status = ticketResponse.getStatus();
+        if ("confirmed".equalsIgnoreCase(status)) {
+            trangThai.setText("Đã thanh toán");
+        } else if ("cancelled".equalsIgnoreCase(status)) {
+            trangThai.setText("Đã hủy");
+        } else {
+            trangThai.setText("Không xác định");
+        }
+
         tuyenXe.setText(ticketResponse.getRoute());
         SoLuongVe.setText(ticketResponse.getTotal_seat().toString());
         ViTriGhe.setText(ticketResponse.getSeat_code());
@@ -181,8 +188,9 @@ public class DetailHistoryActivity extends AppCompatActivity {
         DiemLenXe.setText(ticketResponse.getPickUpPoint());
         DiemXuongXe.setText(ticketResponse.getDropOffPoint());
 
+        tongtien = ticketResponse.getTotal_seat() * ticketResponse.getPrice();
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-        String giaVeFormatted = formatter.format(ticketResponse.getPrice()) + " VNĐ";
+        String giaVeFormatted = formatter.format(tongtien) + " VNĐ";
         giaVe.setText(giaVeFormatted);
         phiThanhToan.setText("0đ");
         TongTien.setText(giaVeFormatted);
