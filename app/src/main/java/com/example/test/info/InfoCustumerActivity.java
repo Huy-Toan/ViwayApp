@@ -73,8 +73,13 @@ public class InfoCustumerActivity extends AppCompatActivity {
             finish();
         });
 
+        btnLogout.setOnClickListener(v -> {
+            requestLogout(token, userId);
+        });
+
         btnUpdateInfo.setOnClickListener(v -> {
             Intent intent = new Intent(InfoCustumerActivity.this, EditInfoCustomerActivity.class);
+            intent.putExtra("infoUser", infoCustomerResponse);
             startActivity(intent);
         });
 
@@ -108,13 +113,14 @@ public class InfoCustumerActivity extends AppCompatActivity {
                         JSONObject obj = new JSONObject(responseBody);
 
                         int id = obj.optInt("id", -1);
-                        String fullName = obj.optString("fullName", "Trống");
-                        String phone = obj.optString("phoneNumber", "Trống");
-                        String email = obj.optString("email", "Trống");
-                        String address = obj.optString("address", "Trống");
-                        String sex = obj.optString("sex", "Trống");
-                        String job = obj.optString("job", "Trống");
-                        String dateOfBirth = obj.optString("dateOfBirth", "Trống");
+                        String fullName = getSafeString(obj, "fullName");
+                        String phone = getSafeString(obj, "phoneNumber");
+                        String email = getSafeString(obj, "email");
+                        String address = getSafeString(obj, "address");
+                        String sex = getSafeString(obj, "sex");
+                        String job = getSafeString(obj, "job");
+                        String dateOfBirth = getSafeString(obj, "dateOfBirth");
+
                         infoCustomerResponse = new InfoCustomerResponse(id,fullName, phone, email, address, sex, job, dateOfBirth);
 
                         runOnUiThread(() -> updateDisplay(infoCustomerResponse));
@@ -139,5 +145,49 @@ public class InfoCustumerActivity extends AppCompatActivity {
         job.setText(infoCustomer.getJob());
         dateOfBirth.setText(infoCustomer.getDateOfBirth());
     }
+
+    private void requestLogout (String token, Integer userId) {
+        String baseUrl = Config.BASE_URL+ "/users/get-info/" + userId;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() ->
+                        Toast.makeText(InfoCustumerActivity.this, "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() ->
+                            Toast.makeText(InfoCustumerActivity.this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show()
+                    );
+                } else {
+                    runOnUiThread(() ->
+                            Toast.makeText(InfoCustumerActivity.this, "Đăng xuất thất bại", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            }
+        });
+    }
+
+    private String getSafeString(JSONObject obj, String key) {
+        if (obj.isNull(key)) return "Trống";
+        String value = obj.optString(key, "Trống");
+        if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("null")) {
+            return "Trống";
+        }
+        return value;
+    }
+
 
 }

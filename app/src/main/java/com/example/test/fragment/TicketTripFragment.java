@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,10 +44,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -63,7 +62,8 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     private String DiemDi, DiemDen, SoLuongVe, token;
     private Calendar calendarNgayDi,calendarNgayVe;
     private Long ngayDiMillis;
-    private TextView topDiemDi, topDiemDen,currentDateHeader,textNoData;
+    private TextView topDiemDi, topDiemDen,currentDateHeader;
+    private LinearLayout textNoData;
     private Boolean isKhuHoi;
     private ImageButton btnBack;
     private Spinner spinnerGiaVe, spinnerLoaiGhe, spinnerGioDi;
@@ -75,7 +75,7 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.ticket_result, container, false);
+        View view = inflater.inflate(R.layout.fragment_ticket_trip, container, false);
 
         btnBack = view.findViewById(R.id.TicketResult_btnBack);
         currentDateHeader = view.findViewById(R.id.TicketResult_ThoiGianHeader);
@@ -122,7 +122,6 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("VIWAY", MODE_PRIVATE);
         token = sharedPreferences.getString("token", "");
-        Log.d("Token", token);
 
 
         // ------------------ Hiển thị vé và thanh ngày đi----------------------//
@@ -168,8 +167,6 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
 
         // ----------------- Nút quay lại -------------------------//
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            startActivity(intent);
             getActivity().finish();
         });
         //---------------------------------------------------------//
@@ -305,13 +302,15 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
 
                         requireActivity().runOnUiThread(() -> {
                             orginalTicketList.clear();
+                            orginalTicketList.addAll(newTicketList);
+
                             if (newTicketList.isEmpty()) {
                                 textNoData.setVisibility(View.VISIBLE);
                             } else {
-                                orginalTicketList.addAll(newTicketList);
                                 textNoData.setVisibility(View.GONE);
                                 applyFilter();
                             }
+
                             ticketAdapter.notifyDataSetChanged();
                         });
 
@@ -322,9 +321,8 @@ public class TicketTripFragment extends Fragment implements DateAdapter.OnDateCl
                         );
                     }
                 } else {
-                    String errorBody = response.body() != null ? response.body().string() : "";
                     requireActivity().runOnUiThread(() -> {
-                        if (response.code() == 400 && errorBody.contains("Không tìm thấy chuyến xe phù hợp")) {
+                        if (response.code() == 400) {
                             textNoData.setVisibility(View.VISIBLE);
                         } else {
                             Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();

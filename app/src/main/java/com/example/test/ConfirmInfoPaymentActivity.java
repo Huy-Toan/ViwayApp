@@ -10,7 +10,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.fragment.ConfirmInfoPaymentFragment;
-import com.example.test.fragment.InforPaymentFragment;
 import com.example.test.response.TicketResponse;
 import com.example.test.response.UserInfoResponse;
 
@@ -22,7 +21,7 @@ public class ConfirmInfoPaymentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.confirm_infor_payment);
+        setContentView(R.layout.fragment_confirm_info_payment);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.confirm_info_payment), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

@@ -81,7 +81,7 @@
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="21dp"
-                        android:src="@drawable/contact" />
+                        android:src="@drawable/ic_support" />
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
 

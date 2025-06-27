@@ -184,15 +184,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
+        <LinearLayout
             android:id="@+id/TicketResult_noData"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Không có dữ liệu"
-            android:textSize="20sp"
-            android:gravity="center|center_vertical"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:visibility="gone"
-            android:padding="16dp"/>
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="160dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:background="@drawable/img_nodata"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="Không tìm thấy dữ liệu nào"
+                android:textSize="20sp" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/item_Ticket"

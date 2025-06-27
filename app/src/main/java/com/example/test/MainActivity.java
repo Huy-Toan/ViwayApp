@@ -25,6 +25,7 @@ import com.example.test.fragment.AccountFragment;
 import com.example.test.fragment.HistoryFragment;
 import com.example.test.fragment.HomeFragment;
 import com.example.test.fragment.NotifyFragment;
+import com.example.test.login_logout.CreatePassWordActivity;
 import com.example.test.support.DanhMucHoTroActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 

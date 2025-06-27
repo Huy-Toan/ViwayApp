@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +29,6 @@ import com.example.test.response.TicketResponse;
 import com.example.test.response.UserInfoResponse;
 
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -41,11 +38,8 @@ import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class InforPaymentFragment extends Fragment {
@@ -72,7 +66,7 @@ public class InforPaymentFragment extends Fragment {
     @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.information_payment, container, false);
+        View view = inflater.inflate(R.layout.fragment_information_payment, container, false);
 
         btnBack = view.findViewById(R.id.btn_thongTin_back);
         btnEdit = view.findViewById(R.id.btn_thonTinEdit);

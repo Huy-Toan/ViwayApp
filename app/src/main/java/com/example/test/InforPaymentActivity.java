@@ -17,7 +17,7 @@ public class InforPaymentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.information_payment);
+        setContentView(R.layout.fragment_information_payment);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.infor_payment), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

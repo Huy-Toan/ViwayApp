@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.MainActivity;
 import com.example.test.R;
+import com.example.test.config.Config;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +43,7 @@ public class EnterOtpActivity extends AppCompatActivity {
     private ImageButton btnBack;
     private OtpTextView otpTextView;
 
-    private String otp, phone;
+    private String otp, contact;
     private CountDownTimer countDownTimer;
 
     @SuppressLint("MissingInflatedId")
@@ -69,17 +70,17 @@ public class EnterOtpActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if (intent != null) {
-            phone = intent.getStringExtra("phone");
-            sdt.setText(phone);
+            contact = intent.getStringExtra("contact");
+            sdt.setText(contact);
         }
 
         guiLaiMa.setOnClickListener(v -> {
-            sendPhone(phone);
+            sendPhone(contact);
         });
 
         btnNext.setOnClickListener(v -> {
             otp = otpTextView.getOTP();
-            sendOtp(phone, otp);
+            sendOtp(contact, otp);
         });
 
         btnBack.setOnClickListener(v -> {
@@ -89,7 +90,7 @@ public class EnterOtpActivity extends AppCompatActivity {
     }
 
     private void sendOtp (String phone, String otp) {
-        String url = "http://192.168.1.94:8080/api/v1/otp/verify";
+        String url = Config.BASE_URL + "/otp/verify";
         OkHttpClient client = new OkHttpClient();
 
         JSONObject data = new JSONObject();
@@ -117,7 +118,6 @@ public class EnterOtpActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("sendPhone", "Lỗi gửi request: " + e.getMessage(), e);
                 runOnUiThread(() ->
                         Toast.makeText(EnterOtpActivity.this, "Gửi thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
@@ -135,7 +135,7 @@ public class EnterOtpActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         if (verify) {
                             Intent intent = new Intent(EnterOtpActivity.this, EnterNameActivity.class);
-                            intent.putExtra("phone", phone);
+                            intent.putExtra("contact", contact);
                             startActivity(intent);
                             finish();
                         } else {
@@ -153,13 +153,13 @@ public class EnterOtpActivity extends AppCompatActivity {
         });
     }
 
-    private void sendPhone (String phone) {
-        String url = "http://192.168.1.94:8080/api/v1/otp/send";
+    private void sendPhone (String contact) {
+        String url = Config.BASE_URL + "/otp/send";
         OkHttpClient client = new OkHttpClient();
 
         JSONObject data = new JSONObject();
         try{
-            data.put("contact", phone);
+            data.put("contact", contact);
         } catch (JSONException e) {
             e.printStackTrace();
             return;

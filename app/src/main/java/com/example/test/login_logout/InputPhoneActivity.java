@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.MainActivity;
 import com.example.test.R;
+import com.example.test.config.Config;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,24 +65,24 @@ public class InputPhoneActivity extends AppCompatActivity {
 
 
         btnNext.setOnClickListener(v -> {
-            String phone = inputPhone.getText().toString().trim();
-            if (phone.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập số điện thoại", Toast.LENGTH_SHORT).show();
+            String ct = inputPhone.getText().toString().trim();
+            if (ct.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập thông tin", Toast.LENGTH_SHORT).show();
             } else {
-                sendPhone(phone);
+                sendContact(ct);
             }
         });
 
 
     }
 
-    private void sendPhone (String phone) {
-        String url = "http://192.168.1.11:8080/api/v1/otp/send";
+    private void sendContact (String contact) {
+        String url = Config.BASE_URL+ "/otp/send";
         OkHttpClient client = new OkHttpClient();
 
         JSONObject data = new JSONObject();
         try{
-            data.put("contact", phone);
+            data.put("contact", contact);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
@@ -119,7 +120,7 @@ public class InputPhoneActivity extends AppCompatActivity {
                             String fullName = jsob.optString("fullName");
 
                             Intent intent = new Intent(InputPhoneActivity.this, EnterPassActivity.class);
-                            intent.putExtra("phone", phone);
+                            intent.putExtra("contact", contact);
                             intent.putExtra("userId", userId);
                             intent.putExtra("fullName", fullName);
                             startActivity(intent);
@@ -127,7 +128,7 @@ public class InputPhoneActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         Log.e("RESPONSE", "Không phải JSON: " + body);
                         Intent intent = new Intent(InputPhoneActivity.this, EnterOtpActivity.class);
-                        intent.putExtra("phone", phone);
+                        intent.putExtra("contact", contact);
                         startActivity(intent);
                     }
                 });

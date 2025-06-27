@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class AccountFragment extends Fragment {
@@ -104,9 +106,9 @@ public class AccountFragment extends Fragment {
                     try {
                         JSONObject obj = new JSONObject(responseBody);
 
-                        String fullname = obj.getString("fullname");
-                        String phone = obj.getString("phone_number");
-                        String email = obj.getString("email");
+                        String fullname = getSafeString(obj, "fullname");
+                        String phone = getSafeString(obj, "phone_number");
+                        String email = getSafeString(obj, "email");
 
                         userInfo = new UserInfoResponse(fullname, phone, email);
 
@@ -146,16 +148,9 @@ public class AccountFragment extends Fragment {
         });
 
         btnYes.setOnClickListener(v -> {
-            requireContext().getSharedPreferences("VIWAY", getContext().MODE_PRIVATE)
-                    .edit()
-                    .clear()
-                    .apply();
-
+            requestLogout(token);
             dialog.dismiss();
 
-            Intent intent = new Intent(requireContext(), InputPhoneActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
         });
     }
 
@@ -181,12 +176,107 @@ public class AccountFragment extends Fragment {
                     .clear()
                     .apply();
 
+            requestDeleteAccount(token, userId);
             dialog.dismiss();
 
 
         });
     }
 
+    private void requestLogout (String token) {
+        String baseUrl = Config.BASE_URL+ "/users/logout" ;
 
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .post(RequestBody.create(new byte[0]))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+                            requireContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE)
+                                .edit()
+                                .clear()
+                                .apply();
+
+                            Intent intent = new Intent(requireContext(), InputPhoneActivity.class);
+                            startActivity(intent);
+                            requireActivity().finish();
+                    });
+                } else {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Đăng xuất thất bại", Toast.LENGTH_SHORT).show();
+                        Log.d("Lỗi: ", "Response code: " + response.code());
+                    });
+                }
+            }
+        });
+    }
+
+
+    private void requestDeleteAccount (String token, Integer userId) {
+        String baseUrl = Config.BASE_URL+ "/users/delete/" + userId;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .delete()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Xóa tài khoản thành công", Toast.LENGTH_SHORT).show();
+                        requireContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE)
+                                .edit()
+                                .clear()
+                                .apply();
+
+                        Intent intent = new Intent(requireContext(), InputPhoneActivity.class);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    });
+                } else {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Xóa tài khoản thất bại", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            }
+        });
+    }
+
+
+    private String getSafeString(JSONObject obj, String key) {
+        if (obj.isNull(key)) return "Trống";
+        String value = obj.optString(key, "Trống");
+        if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("null")) {
+            return "Trống";
+        }
+        return value;
+    }
 
 }

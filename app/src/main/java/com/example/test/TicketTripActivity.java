@@ -7,20 +7,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.example.test.fragment.TicketTripFragment;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class TicketTripActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ticket_result);
+        setContentView(R.layout.fragment_ticket_trip);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ticket_Result), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);

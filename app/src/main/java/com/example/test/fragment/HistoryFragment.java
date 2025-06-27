@@ -1,27 +1,52 @@
 package com.example.test.fragment;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import com.example.test.DetailHistoryActivity;
 import com.example.test.R;
+import com.example.test.SelectedSeatActivity;
+import com.example.test.config.Config;
 import com.example.test.response.TicketHistoryResponse;
 import com.example.test.adapter.TicketHistoryAdapter;
+import com.example.test.response.TicketResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.Call;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class HistoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private TicketHistoryAdapter adapter;
+    private TicketHistoryAdapter ticketHistoryAdapter;
     private List<TicketHistoryResponse> ticketHistoryList;
+    private Integer userId;
+    private String token;
 
     @Nullable
     @Override
@@ -30,61 +55,90 @@ public class HistoryFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.item_History);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         ticketHistoryList = new ArrayList<>();
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "VN12345",
-                "TP. Hồ Chí Minh",
-                "Hà Nội",
-                "A1",
-                "2025-06-01 07:00"
-        ));
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "VN67890",
-                "Đà Nẵng",
-                "Huế",
-                "B12",
-                "2025-06-05 14:30"
-        ));
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "DL11223",
-                "Đà Lạt",
-                "Nha Trang",
-                "C5",
-                "2025-06-10 09:00"
-        ));
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "PQ44556",
-                "Cần Thơ",
-                "Phú Quốc",
-                "D8",
-                "2025-06-15 11:15"
-        ));
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "SG99887",
-                "Hải Phòng",
-                "TP. Hồ Chí Minh",
-                "E2",
-                "2025-06-20 18:00"
-        ));
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "ND12345",
-                "Nam Định",
-                "Thái Bình",
-                "F3",
-                "2025-06-25 10:00"
-        ));
-        ticketHistoryList.add(new TicketHistoryResponse(
-                "LA67890",
-                "Long An",
-                "Tiền Giang",
-                "G7",
-                "2025-06-30 13:00"
-        ));
 
-        adapter = new TicketHistoryAdapter(ticketHistoryList);
-        recyclerView.setAdapter(adapter);
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getInt("userId", 0);
+        token = sharedPreferences.getString("token", "");
+
+        requestTicketHistory(userId, token);
+
+        ticketHistoryAdapter = new TicketHistoryAdapter(ticketHistoryList, ticketHistory -> {
+            Intent intent = new Intent(getContext(), DetailHistoryActivity.class);
+            intent.putExtra("ticketHistory", ticketHistory);
+            startActivity(intent);
+        });
+        recyclerView.setAdapter(ticketHistoryAdapter);
 
         return view;
     }
+
+
+    private void requestTicketHistory(Integer userId, String token) {
+        String baseUrl = Config.BASE_URL+"/ticket/history/"+ userId;
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(baseUrl)
+                .addHeader("Authorization", "Bearer "+ token)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+
+                    Log.d("Data send to server", responseBody);
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseBody);
+                        List<TicketHistoryResponse> newTicketList = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+                            JSONArray seatArray = obj.getJSONArray("seat_code");
+                            List<String> seatList = new ArrayList<>();
+                            for (int j = 0; j < seatArray.length(); j++) {
+                                seatList.add(seatArray.getString(j));
+                            }
+                            String seatCodeStr = String.join(", ", seatList);
+                            TicketHistoryResponse ticket = new TicketHistoryResponse(
+                                    obj.optString("code_ticket", "Trống"),
+                                    obj.optString("origin", ""),
+                                    obj.optString("destination", ""),
+                                    seatCodeStr,
+                                    obj.optString("full_time", "")
+                            );
+                            newTicketList.add(ticket);
+                        }
+
+                        requireActivity().runOnUiThread(() -> {
+                            ticketHistoryList.clear();
+                            ticketHistoryList.addAll(newTicketList);
+                            ticketHistoryAdapter.notifyDataSetChanged();
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(getContext(), "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+                } else {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
+    }
+
 }

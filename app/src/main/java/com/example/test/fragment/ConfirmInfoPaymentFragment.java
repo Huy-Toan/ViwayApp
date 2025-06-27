@@ -36,7 +36,6 @@ import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -64,7 +63,7 @@ public class ConfirmInfoPaymentFragment extends Fragment {
     @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.confirm_infor_payment, container, false);
+        View view = inflater.inflate(R.layout.fragment_confirm_info_payment, container, false);
 
         diemDiHeader = view.findViewById(R.id.confirm_DiemDiHeader);
         diemDenHeader = view.findViewById(R.id.confirm_DiemDenHeader);

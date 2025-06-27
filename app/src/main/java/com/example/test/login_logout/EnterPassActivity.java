@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.test.MainActivity;
 import com.example.test.R;
+import com.example.test.config.Config;
 import com.example.test.response.TicketResponse;
 
 import org.json.JSONException;
@@ -44,7 +45,7 @@ public class EnterPassActivity extends AppCompatActivity {
     private ImageButton btnBack;
     private EditText edNhapMatKhau;
     private TextView khongPhaiToi, quenMatKhau, xinChao;
-    private String name, phone, passWord;
+    private String name, contact, passWord;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -69,14 +70,14 @@ public class EnterPassActivity extends AppCompatActivity {
 
         if (intent != null) {
             name = intent.getStringExtra("fullName");
-            phone = intent.getStringExtra("phone");
+            contact = intent.getStringExtra("contact");
 
             xinChao.setText("Xin chào " + name);
         }
 
         btnDangNhap.setOnClickListener(v -> {
             passWord = edNhapMatKhau.getText().toString();
-            sendInfo(phone, passWord);
+            sendInfo(contact, passWord);
         });
 
         btnBack.setOnClickListener(v -> {
@@ -85,13 +86,13 @@ public class EnterPassActivity extends AppCompatActivity {
 
     }
 
-    private void sendInfo (String phone, String passWord) {
-        String url = "http://192.168.1.11:8080/api/v1/users/login";
+    private void sendInfo (String contact, String passWord) {
+        String url = Config.BASE_URL+ "/users/login";
         OkHttpClient client = new OkHttpClient();
 
         JSONObject data = new JSONObject();
         try{
-            data.put("phone_number", phone);
+            data.put("phone_number", contact);
             data.put("password", passWord);
         } catch (JSONException e) {
             e.printStackTrace();

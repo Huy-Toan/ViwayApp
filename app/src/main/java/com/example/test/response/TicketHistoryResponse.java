@@ -1,22 +1,25 @@
 package com.example.test.response;
 import com.google.gson.annotations.SerializedName;
-public class TicketHistoryResponse {
 
-    @SerializedName("code")
+import java.io.Serializable;
+
+public class TicketHistoryResponse implements Serializable {
+
+    @SerializedName("code_ticket")
     private String maVe;
-    @SerializedName("departureLocation")
-    private String tuyenDuongDi;
-    @SerializedName("arrivalLocation")
-    private String tuyenDuongDen;
-    @SerializedName("seatNumber")
+    @SerializedName("origin")
+    private String diemDi;
+    @SerializedName("destination")
+    private String diemDen;
+    @SerializedName("seat_code")
     private String viTriGhe;
-    @SerializedName("departureTime")
+    @SerializedName("full_time")
     private String gioXuatBen;
 
-    public TicketHistoryResponse(String maVe, String tuyenDuongDi, String tuyenDuongDen, String viTriGhe, String gioXuatBen){
+    public TicketHistoryResponse(String maVe, String diemDi, String diemDen, String viTriGhe, String gioXuatBen){
         this.maVe = maVe;
-        this.tuyenDuongDi = tuyenDuongDi;
-        this.tuyenDuongDen = tuyenDuongDen;
+        this.diemDi = diemDi;
+        this.diemDen = diemDen;
         this.viTriGhe = viTriGhe;
         this.gioXuatBen = gioXuatBen;
     }
@@ -26,11 +29,11 @@ public class TicketHistoryResponse {
     }
 
     public String getTuyenDuongDi() {
-        return tuyenDuongDi;
+        return diemDi;
     }
 
     public String getTuyenDuongDen() {
-        return tuyenDuongDen;
+        return diemDen;
     }
 
     public String getGioXuatBen() {

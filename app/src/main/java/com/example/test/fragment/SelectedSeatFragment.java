@@ -24,8 +24,6 @@ import android.widget.Toast;
 
 import com.example.test.InforPaymentActivity;
 import com.example.test.R;
-import com.example.test.SelectedSeatActivity;
-import com.example.test.TicketTripActivity;
 import com.example.test.config.Config;
 import com.example.test.response.SeatStatusResponse;
 import com.example.test.response.TicketResponse;
@@ -33,7 +31,6 @@ import com.example.test.response.TicketResponse;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +42,6 @@ import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -68,7 +64,7 @@ public class SelectedSeatFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.select_chair, container, false);
+        View view = inflater.inflate(R.layout.fragment_select_seat, container, false);
 
         diemDiHeader = view.findViewById(R.id.chonGhe_diemDiHeader);
         diemDenHeader = view.findViewById(R.id.chonGhe_diemDenHeader);

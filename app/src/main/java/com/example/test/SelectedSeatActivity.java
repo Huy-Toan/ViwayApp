@@ -19,7 +19,7 @@ public class SelectedSeatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.select_chair);
+        setContentView(R.layout.fragment_select_seat);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.select_seat), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
