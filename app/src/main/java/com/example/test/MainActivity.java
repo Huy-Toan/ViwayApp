@@ -21,7 +21,7 @@ import com.example.test.fragment.AccountFragment;
 import com.example.test.fragment.HistoryFragment;
 import com.example.test.fragment.HomeFragment;
 import com.example.test.fragment.NotifyFragment;
-import com.example.test.support.DanhMucHoTroActivity;
+import com.example.test.support.SupportDirectoryActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnHelpIcon.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, DanhMucHoTroActivity.class);
+            Intent intent = new Intent(MainActivity.this, SupportDirectoryActivity.class);
             startActivity(intent);
         });
 

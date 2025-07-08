@@ -1,5 +1,7 @@
 package com.example.test.adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.widget.TextView;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.annotation.NonNull;
 
+import com.example.test.ScheduleActivity;
 import com.example.test.response.TicketHistoryResponse;
 import com.example.test.response.TicketResponse;
 import com.example.test.R;
@@ -34,7 +37,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
         public TextView ticket_Diemdi;
         public TextView khoangCach;
         public TextView ticket_Diemden;
-
+        public TextView lichTrinh;
 
         public TicketTripHolder(View itemView){
             super(itemView);
@@ -47,6 +50,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
             ticket_Diemdi = itemView.findViewById(R.id.ticket_diemDi);
             khoangCach = itemView.findViewById(R.id.ticket_khoangCach);
             ticket_Diemden = itemView.findViewById(R.id.ticket_diemDen);
+            lichTrinh = itemView.findViewById(R.id.ticket_tvLichTrinh);
         }
     }
 
@@ -61,10 +65,16 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
     public void onBindViewHolder (@NonNull TicketAdapter.TicketTripHolder holder, int position){
         TicketResponse currenTicket = ticketResponseList.get(position);
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+
+        Integer ticketId;
+        String diemDi, diemDen;
         String giaVeFormatted = formatter.format(currenTicket.getGiaVe()) + " VNĐ";
         String soLuongGheFormatted = "Còn " + formatter.format(currenTicket.getSoLuongGhe()) + " chỗ";
         String khoangCachFormatted = "Khoảng cách " + formatter.format(currenTicket.getKhoangCach()) + " km - " + currenTicket.getThoiGianDi();
 
+        ticketId = currenTicket.getTicketId();
+        diemDi = currenTicket.getDiemDi();
+        diemDen = currenTicket.getDiemDen();
         holder.gioDi.setText(currenTicket.getGioDi());
         holder.gioDen.setText(currenTicket.getGioDen());
         holder.giaVe.setText(giaVeFormatted);
@@ -78,6 +88,15 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketTrip
             if (listener != null) {
                 listener.onTicketClick(currenTicket);
             }
+        });
+
+        holder.lichTrinh.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent = new Intent(context, ScheduleActivity.class);
+            intent.putExtra("ticketId", ticketId);
+            intent.putExtra("diemDi", diemDi);
+            intent.putExtra("diemDen", diemDen);
+            context.startActivity(intent);
         });
 
     }

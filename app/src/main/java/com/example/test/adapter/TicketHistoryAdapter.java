@@ -9,11 +9,9 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -22,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.test.R;
 import com.example.test.response.TicketHistoryResponse;
-import com.example.test.support.DanhMucHoTroActivity;
+import com.example.test.support.SupportDirectoryActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.List;
@@ -39,6 +37,7 @@ public class TicketHistoryAdapter extends RecyclerView.Adapter<TicketHistoryAdap
 
     public static class TicketViewHolder extends RecyclerView.ViewHolder{
         public TextView maVe;
+        public TextView trangThai;
         public TextView tuyenDuongDi;
         public TextView tuyenDuongDen;
         public TextView viTriGhe;
@@ -49,6 +48,7 @@ public class TicketHistoryAdapter extends RecyclerView.Adapter<TicketHistoryAdap
             super(itemView);
 
             maVe = itemView.findViewById(R.id.TicketHistory_maVe);
+            trangThai = itemView.findViewById(R.id.TicketHistory_trangThai);
             tuyenDuongDi = itemView.findViewById(R.id.TicketHistory_DiemDi);
             tuyenDuongDen = itemView.findViewById(R.id.TicketHistory_DiemDen);
             viTriGhe = itemView.findViewById(R.id.TicketHistory_viTriGhe);
@@ -69,6 +69,14 @@ public class TicketHistoryAdapter extends RecyclerView.Adapter<TicketHistoryAdap
         TicketHistoryResponse currenTicket = tiketList.get(position);
 
         holder.maVe.setText(currenTicket.getMaVe());
+
+        String status = currenTicket.getTrangThai();
+        if ("confirmed".equalsIgnoreCase(status)) {
+            holder.trangThai.setText("Đã thanh toán");
+        } else if ("cancelled".equalsIgnoreCase(status)) {
+            holder.trangThai.setText("Đã hủy");
+        }
+
         holder.tuyenDuongDi.setText(currenTicket.getTuyenDuongDi());
         holder.tuyenDuongDen.setText(currenTicket.getTuyenDuongDen());
         holder.viTriGhe.setText(currenTicket.getViTriGhe());
@@ -128,7 +136,7 @@ public class TicketHistoryAdapter extends RecyclerView.Adapter<TicketHistoryAdap
         });
 
         support.setOnClickListener(view ->{
-            Intent intent = new Intent(context, DanhMucHoTroActivity.class);
+            Intent intent = new Intent(context, SupportDirectoryActivity.class);
             context.startActivity(intent);
         });
 

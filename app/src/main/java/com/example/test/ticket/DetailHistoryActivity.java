@@ -28,7 +28,7 @@ import com.example.test.R;
 import com.example.test.config.Config;
 import com.example.test.response.DetailHistoryTicketResponse;
 import com.example.test.response.TicketHistoryResponse;
-import com.example.test.support.DanhMucHoTroActivity;
+import com.example.test.support.SupportDirectoryActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.json.JSONArray;
@@ -106,6 +106,7 @@ public class DetailHistoryActivity extends AppCompatActivity {
 
     }
 
+//    ------------ Hiển thị chi tiết lịch sử vé ----------------------------------
     private void getDetailHistoryTicket (String token, String maVe) {
         String baseUrl = Config.BASE_URL + "/ticket/details/" + maVe;
 
@@ -166,7 +167,7 @@ public class DetailHistoryActivity extends AppCompatActivity {
             }
         });
     }
-
+//---------------- Cập nhật giao diện --------------------------------------------
     private void updateDisplay(DetailHistoryTicketResponse ticketResponse) {
         fullname.setText(ticketResponse.getFullname());
         phone.setText(ticketResponse.getPhone());
@@ -196,7 +197,7 @@ public class DetailHistoryActivity extends AppCompatActivity {
         TongTien.setText(giaVeFormatted);
 
     }
-
+//----------------- Hiển thị hộp thoại hỗ trợ ------------------------------------
     public void showDialogSupportBottom (View v , String maVe) {
         Context context = v.getContext();
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getContext());
@@ -229,7 +230,7 @@ public class DetailHistoryActivity extends AppCompatActivity {
         });
 
         support.setOnClickListener(view ->{
-            Intent intent = new Intent(context, DanhMucHoTroActivity.class);
+            Intent intent = new Intent(context, SupportDirectoryActivity.class);
             context.startActivity(intent);
         });
 

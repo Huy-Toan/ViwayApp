@@ -49,7 +49,7 @@
                     android:lineSpacingExtra="2dp"
                     android:padding="5dp"
                     android:singleLine="false"
-                    android:text="Chỉ còn 4h nữa chuyến xe Tây sơn - nga tu ga của bạn sẽ khởi hanhfdhfashdfljsa;dfkj" />
+                    android:text="Chỉ còn 4h nữa chuyến xe Tây sơn - nga tu ga của bạn sẽ khởi hành" />
             </TableRow>
         </TableLayout>
     </LinearLayout>

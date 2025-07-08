@@ -1,15 +1,15 @@
 package com.example.test.info;
 
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,11 +20,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.test.R;
 import com.example.test.config.Config;
-import com.example.test.login_logout.InputPhoneActivity;
+import com.example.test.login_logout_forgotpass.InputPhoneActivity;
 import com.example.test.response.InfoCustomerResponse;
-import com.example.test.response.UserInfoResponse;
 
 import org.json.JSONObject;
 
@@ -41,10 +44,11 @@ public class InfoCustumerActivity extends AppCompatActivity {
 
     private InfoCustomerResponse infoCustomerResponse;
     private ImageButton btnBack;
+    private ImageView imgUser;
     private Button btnUpdateInfo, btnLogout;
     private Integer userId;
     private TextView phone, fullname, email, sex, job, dateOfBirth;
-    private String token;
+    private String token, imgUrl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +63,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
         btnUpdateInfo = findViewById(R.id.Info_btnCapNhatThongTin);
         btnLogout = findViewById(R.id.Info_btnDangXuat);
         btnBack = findViewById(R.id.Info_btnBack);
+        imgUser = findViewById(R.id.Info_imgInfo);
         phone = findViewById(R.id.Info_tvPhone);
         fullname = findViewById(R.id.Info_tvFullName);
         email = findViewById(R.id.Info_tvEmail);
@@ -69,7 +74,25 @@ public class InfoCustumerActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("VIWAY", MODE_PRIVATE);
         token = sharedPreferences.getString("token", "");
         userId = sharedPreferences.getInt("userId", -1);
+        imgUrl = sharedPreferences.getString("imageUrl", "");
 
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            String fullImageUrl = Config.BASE_URL_IMAGE + imgUrl;
+
+            GlideUrl glideUrl = new GlideUrl(fullImageUrl,
+                    new LazyHeaders.Builder()
+                            .addHeader("Authorization", "Bearer " + token)
+                            .build());
+
+            Glide.with(this)
+                    .load(glideUrl)
+                    .placeholder(R.drawable.ic_person)
+                    .error(R.drawable.ic_person)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(imgUser);
+        }
+
+//       -------- Lấy thông tin khách hàng ----------------------------
         getInfo(userId, token);
 
         btnBack.setOnClickListener(v -> {
@@ -77,7 +100,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
         });
 
         btnLogout.setOnClickListener(v -> {
-            requestLogout(token);
+            showLogoutDialog();
         });
 
         btnUpdateInfo.setOnClickListener(v -> {
@@ -88,6 +111,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
 
     }
 
+//    --------- Hàm lấy thông tin khách hàng ----------------------
     private void getInfo (Integer userId, String token) {
         String baseUrl = Config.BASE_URL + "/users/get-user/" + userId;
 
@@ -140,6 +164,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
         });
     }
 
+//    --------- Cập nhật giao diện khi có dữ liệu ---------------
     private void updateDisplay(InfoCustomerResponse infoCustomer) {
         fullname.setText(infoCustomer.getFullName());
         phone.setText(infoCustomer.getPhone());
@@ -149,6 +174,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
         dateOfBirth.setText(infoCustomer.getDateOfBirth());
     }
 
+//    ---------- Yêu cầu đăng xuất ------------------------------
     private void requestLogout (String token) {
         String baseUrl = Config.BASE_URL+ "/users/logout";
 
@@ -191,6 +217,7 @@ public class InfoCustumerActivity extends AppCompatActivity {
         });
     }
 
+//    ----------- Kiểm tra dữ liệu khi nhận ----------------------
     private String getSafeString(JSONObject obj, String key) {
         if (obj.isNull(key)) return "Chưa cập nhật";
         String value = obj.optString(key, "Chưa cập nhật");
@@ -198,6 +225,28 @@ public class InfoCustumerActivity extends AppCompatActivity {
             return "Chưa cập nhật";
         }
         return value;
+    }
+
+//    ----------- Cảnh báo khi đăng xuất ------------------------
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_logout, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+
+        Button btnNo = view.findViewById(R.id.Logout_btnNo);
+        Button btnYes = view.findViewById(R.id.Logout_btnYes);
+
+        btnNo.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+
+        btnYes.setOnClickListener(v -> {
+            requestLogout(token);
+            dialog.dismiss();
+        });
     }
 
 

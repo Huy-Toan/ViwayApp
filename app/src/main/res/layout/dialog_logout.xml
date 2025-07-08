@@ -3,11 +3,12 @@
     android:orientation="vertical"
     android:layout_margin="20dp"
     android:padding="10dp"
-    android:background="@drawable/rounded_background"
+    android:background="@drawable/white_rounded_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <TextView
+        android:id="@+id/Logout_tvTitle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:textSize="20sp"
@@ -16,10 +17,9 @@
         android:text="Thoát ứng dụng"/>
 
     <TextView
+        android:id="@+id/Logout_tvContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-
         android:text="Bạn thực sự muốn thoát ứng dụng"/>
 
     <LinearLayout

@@ -1,5 +1,6 @@
 package com.example.test.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -41,13 +43,17 @@ public class NotifyFragment extends Fragment {
     private List<NotifyResponse> notifyResponseList;
     private String token;
     private Integer userId;
+    private LinearLayout textNoData;
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notify, container, false);
 
         recyclerView = view.findViewById(R.id.item_Notify);
+        textNoData = view.findViewById(R.id.FragmentNotify_noDaTa);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("VIWAY", Context.MODE_PRIVATE);
@@ -87,6 +93,16 @@ public class NotifyFragment extends Fragment {
                     String responseBody = response.body().string();
                     try {
                         JSONArray jsonArray = new JSONArray(responseBody);
+
+                        if (jsonArray.length() == 0) {
+                            requireActivity().runOnUiThread(() -> {
+                                textNoData.setVisibility(View.VISIBLE);
+                                notifyResponseList.clear();
+                                adapterNotify.notifyDataSetChanged();
+                            });
+                            return;
+                        }
+
                         List<NotifyResponse> newNotifyList = new ArrayList<>();
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj = jsonArray.getJSONObject(i);
@@ -100,6 +116,7 @@ public class NotifyFragment extends Fragment {
                         }
 
                         requireActivity().runOnUiThread(() -> {
+                            textNoData.setVisibility(View.GONE);
                             notifyResponseList.clear();
                             Collections.reverse(newNotifyList);
                             notifyResponseList.addAll(newNotifyList);
@@ -114,7 +131,7 @@ public class NotifyFragment extends Fragment {
                     }
                 } else {
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();
+                        textNoData.setVisibility(View.VISIBLE);
                     });
                 }
             }

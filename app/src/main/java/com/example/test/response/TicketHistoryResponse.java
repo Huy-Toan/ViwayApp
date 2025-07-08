@@ -7,6 +7,8 @@ public class TicketHistoryResponse implements Serializable {
 
     @SerializedName("code_ticket")
     private String maVe;
+    @SerializedName("status")
+    private String trangThai;
     @SerializedName("origin")
     private String diemDi;
     @SerializedName("destination")
@@ -16,8 +18,9 @@ public class TicketHistoryResponse implements Serializable {
     @SerializedName("full_time")
     private String gioXuatBen;
 
-    public TicketHistoryResponse(String maVe, String diemDi, String diemDen, String viTriGhe, String gioXuatBen){
+    public TicketHistoryResponse(String maVe,String trangThai, String diemDi, String diemDen, String viTriGhe, String gioXuatBen){
         this.maVe = maVe;
+        this.trangThai = trangThai;
         this.diemDi = diemDi;
         this.diemDen = diemDen;
         this.viTriGhe = viTriGhe;
@@ -44,4 +47,7 @@ public class TicketHistoryResponse implements Serializable {
         return viTriGhe;
     }
 
+    public String getTrangThai() {
+        return trangThai;
+    }
 }

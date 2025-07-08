@@ -1,5 +1,6 @@
 package com.example.test.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -42,13 +44,17 @@ public class HistoryFragment extends Fragment {
     private List<TicketHistoryResponse> ticketHistoryList;
     private Integer userId;
     private String token;
+    private LinearLayout textNoData;
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         recyclerView = view.findViewById(R.id.item_History);
+        textNoData = view.findViewById(R.id.FragmentHistory_noDaTa);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ticketHistoryList = new ArrayList<>();
 
@@ -93,9 +99,18 @@ public class HistoryFragment extends Fragment {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
 
-                    Log.d("Data send to server", responseBody);
                     try {
                         JSONArray jsonArray = new JSONArray(responseBody);
+
+                        if (jsonArray.length() == 0) {
+                            requireActivity().runOnUiThread(() -> {
+                                textNoData.setVisibility(View.VISIBLE);
+                                ticketHistoryList.clear();
+                                ticketHistoryAdapter.notifyDataSetChanged();
+                            });
+                            return;
+                        }
+
                         List<TicketHistoryResponse> newTicketList = new ArrayList<>();
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj = jsonArray.getJSONObject(i);
@@ -107,15 +122,17 @@ public class HistoryFragment extends Fragment {
                             String seatCodeStr = String.join(", ", seatList);
                             TicketHistoryResponse ticket = new TicketHistoryResponse(
                                     obj.optString("code_ticket", "Trống"),
+                                    obj.optString("status", "Trống"),
                                     obj.optString("origin", ""),
-                                    obj.optString("destination", ""),
+                                    obj.optString("destination", "Trống"),
                                     seatCodeStr,
-                                    obj.optString("full_time", "")
+                                    obj.optString("full_time", "Trống")
                             );
                             newTicketList.add(ticket);
                         }
 
                         requireActivity().runOnUiThread(() -> {
+                            textNoData.setVisibility(View.GONE);
                             ticketHistoryList.clear();
                             Collections.reverse(newTicketList);
                             ticketHistoryList.addAll(newTicketList);
@@ -130,7 +147,7 @@ public class HistoryFragment extends Fragment {
                     }
                 } else {
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Lỗi phản hồi từ server", Toast.LENGTH_SHORT).show();
+                        textNoData.setVisibility(View.VISIBLE);
                     });
                 }
             }

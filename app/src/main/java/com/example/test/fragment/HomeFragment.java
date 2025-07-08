@@ -18,7 +18,6 @@ import android.widget.DatePicker;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.example.test.CustomSpinner;
+import com.example.test.utils.NotifyDialogHelper;
 import com.example.test.R;
 import com.example.test.ticket.TicketTripActivity;
 import com.example.test.item.SliderItem;
@@ -114,7 +114,7 @@ public class HomeFragment extends Fragment {
         });
 
 
-        String[] diaDiemList = {"Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Bình Định"};
+        String[] diaDiemList = {"Hồ Chí Minh", "Bình Định", "Quảng Nam", "Khánh Hòa", "Phú Yên"};
         List<String> itemDiaDiemList = Arrays.asList(diaDiemList);
         String[] SoLuongVe = {"1", "2", "3", "4", "5", "6"};
         List<String> itemSoLuongVeList = Arrays.asList(SoLuongVe);
@@ -243,16 +243,17 @@ public class HomeFragment extends Fragment {
                 intent.putExtra("NGAY_DI",valueNgayDi);
                 intent.putExtra("SO_LUONG_VE",valueSoLuongVe);
 
-                Log.d("DEBUG_INTENT", "Điểm đi: " + valueDiemDi);
-                Log.d("DEBUG_INTENT", "Điểm đến: " + valueDiemDen);
-                Log.d("DEBUG_INTENT", "Ngày đi (millis): " + valueNgayDi);
-                Log.d("DEBUG_INTENT", "Số lượng vé: " + valueSoLuongVe);
-                Log.d("DEBUG_INTENT", "Khứ hồi được chọn: " + checkBoxKhuHoi.isChecked());
-
                 if(checkBoxKhuHoi.isChecked()){
                     Long valueNgayVe = calendarNgayVe.getTimeInMillis();
                     intent.putExtra("NGAY_VE",valueNgayVe);
-                    Log.d("DEBUG_INTENT", "Ngày về (millis): " + valueNgayVe);
+                }
+
+                if (valueDiemDi.equals(valueDiemDen)) {
+                    NotifyDialogHelper.showNotifyDialog(
+                            getContext(),
+                            "Điểm đi và điểm đến không được trùng nhau!"
+                    );
+                    return;
                 }
 
                 startActivity(intent);
