@@ -63,4 +63,4 @@ Người dùng có thể **tìm chuyến xe, chọn ghế, đặt vé, thanh to�
 5. Nhấn nút Run ▶️ để khởi chạy ứng dụng
 
 ```bash
-https://github.com/Huy-Toan/app_ticket.git
+https://github.com/Huy-Toan/ViwayApp.git
